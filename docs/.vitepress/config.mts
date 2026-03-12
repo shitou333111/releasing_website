@@ -4,13 +4,16 @@ export default defineConfig({
   lang: 'zh-CN',
   title: 'Releasing',
   description: 'A VitePress website for publishing content, custom features, and branded presentation.',
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/icon-192x192.png' }]
+  ],
   cleanUrls: true,
   lastUpdated: true,
   themeConfig: {
-    logo: '/icon-192x192-trans.png',
+    logo: '/icon-192x192.png',
     nav: [
       { text: '首页', link: '/' },
-      { text: '开始', link: '/guide/' }
+      { text: 'APP', link: 'https://app.releasing.icu' }
     ],
     sidebar: [
       {
