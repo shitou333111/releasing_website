@@ -9,6 +9,18 @@
     "docs:preview": "vitepress preview docs --host 0.0.0.0 --port 5174"
   },
   "devDependencies": {
-    "vitepress": "^1.6.3"
+    "@types/diff-match-patch": "^1.0.36",
+    "@types/uuid": "^10.0.0",
+    "vitepress": "^1.6.3",
+    "vitepress-sidebar": "^1.33.1"
+  },
+  "dependencies": {
+    "@recogito/pdf-annotator": "^1.6.0",
+    "@recogito/text-annotator": "^3.4.9",
+    "@supabase/supabase-js": "^2.102.1",
+    "@tato30/vue-pdf": "^2.0.2",
+    "diff-match-patch": "^1.0.5",
+    "pinia": "^3.0.4",
+    "uuid": "^13.0.0"
   }
 }
