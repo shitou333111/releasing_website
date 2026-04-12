@@ -15,6 +15,18 @@
 }
 
 html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+html {
   scrollbar-gutter: stable;
 }
 
@@ -36,63 +48,30 @@ body,
   background-color: var(--site-top-bg-dark);
 }
 
-.annotation-layout .VPNav:not(.home),
-.annotation-layout .VPNavBar:not(.home),
-.annotation-layout .VPNavBar:not(.home) .wrapper,
-.annotation-layout .VPNavBar:not(.home) .container,
-.annotation-layout .VPNavBar:not(.home) .content,
-.annotation-layout .VPNavBar:not(.home) .content-body,
-.annotation-layout .VPNavBar:not(.home) .curtain,
-.annotation-layout .VPNavBar:not(.home) .divider {
-  background: var(--vp-c-bg) !important;
-  backdrop-filter: none !important;
-}
-
-.annotation-layout .VPNavBar:not(.home) .content {
-  position: relative;
-  overflow: visible;
-}
-
 @media (min-width: 960px) {
-  .annotation-layout .VPNavBar:not(.home) .content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: var(--vp-sidebar-width);
-    background: var(--annotation-sidebar-bg);
-    pointer-events: none;
-    z-index: 0;
+  /* Keep desktop topbar as two continuous segments: sidebar-side and content-side. */
+  .annotation-layout .VPNav:not(.home),
+  .annotation-layout .VPNavBar.has-sidebar:not(.home),
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .wrapper,
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .container,
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .content,
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .content-body,
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .divider {
+    background: var(--vp-c-bg) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
-  .annotation-layout .VPNavBar:not(.home) .content-body,
-  .annotation-layout .VPNavBar:not(.home) .title,
-  .annotation-layout .VPNavBar:not(.home) .curtain,
-  .annotation-layout .VPNavBar:not(.home) .divider {
-    position: relative;
-    z-index: 1;
-  }
-}
-
-@media (min-width: 1440px) {
-  .annotation-layout .VPNavBar:not(.home) .content::before {
-    width: calc((100% - (var(--vp-layout-max-width) - 64px)) / 2 + var(--vp-sidebar-width) - 32px);
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .title,
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .VPNavBarTitle,
+  .annotation-layout .VPNavBar.has-sidebar:not(.home) .VPNavBarTitle .title {
+    background: var(--annotation-sidebar-bg) !important;
   }
 }
 
 .annotation-layout .VPSidebar,
-.annotation-layout .VPSidebar .curtain,
-.annotation-layout .VPNavBar:not(.home) .content::before {
+.annotation-layout .VPSidebar .curtain {
   background: var(--annotation-sidebar-bg) !important;
-}
-
-.annotation-layout .VPNavBar .divider,
-.annotation-layout .VPNavBar .divider-line,
-.annotation-layout .VPNavBar:not(.home) .divider-line,
-.annotation-layout .VPLocalNav {
-  border-bottom-color: transparent !important;
-  background-color: transparent !important;
 }
 
 .annotation-layout .mobile-localnav-tabs {
@@ -166,11 +145,18 @@ body,
 
 .annotation-layout .mobile-localnav-notes,
 .annotation-layout .mobile-localnav-pdf-outline {
-  border-top: 1px solid var(--vp-c-divider);
-  margin: 10px 10px 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
   padding: 10px 8px 8px;
   background: var(--vp-c-bg-soft);
   border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+  max-height: calc(var(--vp-vh, 100vh) - 180px);
+  overflow-y: auto;
 }
 
 .annotation-layout .mobile-localnav-notes .annotation-sidebar {
@@ -662,7 +648,7 @@ body,
 
 .text-annotation-selected-outline-box {
   position: fixed !important;
-  z-index: 2147483639;
+  z-index: 10;
 }
 
 .vp-doc .r6o-span-highlight-layer .r6o-annotation.annotation-selected-highlight,
@@ -920,7 +906,7 @@ body,
   border-radius: 12px;
   padding: 10px;
   box-shadow: 0 18px 40px rgba(2, 6, 23, 0.18);
-  z-index: 2147483642;
+  z-index: 15;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1898,5 +1884,38 @@ html.ios-touch-device .pdf-viewer-container .textLayer * {
   .annotation-layout .VPContent.has-sidebar {
     padding-right: 0 !important;
   }
+}
+
+.quick-bubble {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.annotation-item {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.annotation-item:hover {
+  will-change: transform, border-color;
+}
+
+.annotation-item.active {
+  will-change: transform, border-color, box-shadow;
+}
+
+.r6o-annotation,
+.r6o-highlight-layer {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.annotation-selected-outline-box {
+  will-change: top, left, width, height;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 

@@ -1866,7 +1866,25 @@ function handleDocumentKeydown(event: KeyboardEvent) {
 
 onMounted(() => {
   void initializeVuePDFClientOnly();
+  
+  const storedPageNumber = sessionStorage.getItem('pdf_page_number');
+  
+  if (storedPageNumber) {
+    const pageNumber = parseInt(storedPageNumber, 10);
+    if (Number.isFinite(pageNumber) && pageNumber > 0) {
+      watch(pages, (newPages) => {
+        if (newPages >= pageNumber) {
+          window.setTimeout(() => {
+            navigateToPDFPage(pageNumber);
+          }, 500);
+          sessionStorage.removeItem('pdf_page_number');
+        }
+      }, { immediate: true });
+    }
+  }
+  
   void refreshPDFSource();
+  
   setupFullPageObserver();
   setupPageWidthObserver();
   requestAnimationFrame(() => {

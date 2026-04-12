@@ -87,14 +87,17 @@ async function handleLogout() {
 
 const uniqueUsers = computed(() => {
   const users = new Map();
-  annotationStore.annotations
-    .filter(anno => anno.pagePath === annotationStore.currentPagePath)
-    .filter(anno => anno.privacy === 'public' || anno.creator.id === userStore.currentUser?.id)
-    .forEach(anno => {
+  const currentPath = annotationStore.currentPagePath;
+  const currentUserId = userStore.currentUser?.id;
+  
+  for (const anno of annotationStore.annotations) {
+    if (anno.pagePath !== currentPath) continue;
+    if (anno.privacy !== 'public' && anno.creator.id !== currentUserId) continue;
+    
     if (!users.has(anno.creator.id)) {
       users.set(anno.creator.id, anno.creator);
     }
-  });
+  }
   return Array.from(users.values());
 });
 

@@ -40,7 +40,7 @@
 ### 全页铺展 PDF 示例（从第一页到最后一页）
 
 <PDFViewer
-	src="/PDFs/b.pdf"
+	src="/PDFs/guide/pdftesten.pdf"
 	background="#ffffff"
 	embedMode="fullpage"
 	:show-crop-guides="true"

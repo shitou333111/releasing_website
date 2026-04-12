@@ -23,6 +23,7 @@ const isMobileViewport = ref(false);
 const isMobileChapterPanelOpen = ref(false);
 const mobileLocalNavContainerTarget = ref<HTMLElement | null>(null);
 const mobileLocalNavPanelTarget = ref<HTMLElement | null>(null);
+const PDF_OUTLINE_JUMP_EVENT = 'pdf-outline-jump';
 let localNavObserver: MutationObserver | null = null;
 let mobileViewportSyncRaf = 0;
 let iosCalloutClassApplied = false;
@@ -288,17 +289,20 @@ function syncMobileChapterToggleState() {
 }
 
 function handleMobileChapterToggleClick(event: MouseEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+
   activeAsideTab.value = 'outline';
 
   if (!isMobileViewport.value || !isCustomPDFOutlineEnabled.value) {
     return;
   }
 
-  event.preventDefault();
-  event.stopPropagation();
-
   isMobileChapterPanelOpen.value = !isMobileChapterPanelOpen.value;
   syncMobileChapterToggleState();
+  
+  return false;
 }
 
 function syncMobileViewportState() {
@@ -313,7 +317,7 @@ function syncMobileViewportState() {
   const chapterToggle = getMobileChapterToggleButton();
 
   if (chapterToggle && !chapterToggle.dataset.annotationTabBound) {
-    chapterToggle.addEventListener('click', handleMobileChapterToggleClick);
+    chapterToggle.addEventListener('click', handleMobileChapterToggleClick, true);
     chapterToggle.dataset.annotationTabBound = '1';
   }
 
@@ -400,6 +404,33 @@ function queueViewportSync() {
   });
 }
 
+function handlePDFSearchResultClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  const link = target.closest('a[href^="/pdf-content/"]') as HTMLAnchorElement | null;
+  
+  if (!link) return;
+  
+  event.preventDefault();
+  event.stopPropagation();
+  
+  const href = link.getAttribute('href') || '';
+  const hash = link.hash || '';
+  
+  let pageNumber = 1;
+  if (hash && hash.startsWith('#page-')) {
+    const match = hash.match(/#page-(\d+)/);
+    if (match) {
+      pageNumber = parseInt(match[1], 10);
+    }
+  }
+  
+  const targetPath = href.split('#')[0].replace('/pdf-content/', '/').replace(/\.html$/, '');
+  
+  sessionStorage.setItem('pdf_page_number', pageNumber.toString());
+  
+  window.location.replace(targetPath);
+}
+
 onMounted(() => {
   userStore.initUser();
 
@@ -421,7 +452,44 @@ onMounted(() => {
 
   window.addEventListener('resize', queueViewportSync);
   document.addEventListener('click', handleMobileOutsideClick);
+  document.addEventListener('click', handlePDFSearchResultClick, true);
+  document.addEventListener('click', handleChapterLinkClick, true);
+  document.addEventListener(PDF_OUTLINE_JUMP_EVENT, handlePDFOutlineJump as EventListener, true);
 });
+
+function handleChapterLinkClick(event: MouseEvent) {
+  if (!isMobileChapterPanelOpen.value || !isMobileViewport.value) {
+    return;
+  }
+  
+  const target = event.target as HTMLElement;
+  const link = target.closest('a');
+  
+  if (!link) {
+    return;
+  }
+  
+  const panel = document.querySelector('.mobile-localnav-pdf-outline, .VPLocalNavOutlineDropdown');
+  if (!panel || !panel.contains(target)) {
+    return;
+  }
+  
+  if (link.getAttribute('href')?.startsWith('#') || !link.getAttribute('href')?.includes('://')) {
+    isMobileChapterPanelOpen.value = false;
+    syncMobileChapterToggleState();
+    unlockBodyScroll();
+  }
+}
+
+function handlePDFOutlineJump() {
+  if (!isMobileViewport.value || !isCustomPDFOutlineEnabled.value || !isMobileChapterPanelOpen.value) {
+    return;
+  }
+
+  // Avoid keeping the body in fixed-lock state, which can block page jump scrolling.
+  closeMobileChapterPanelIfOpen();
+  unlockBodyScroll();
+}
 
 watch(() => route.path, (newPath) => {
   pageNotesEnabledOverride.value = null;
@@ -478,7 +546,50 @@ watch(isCustomPDFOutlineEnabled, (enabled) => {
   queueViewportSync();
 });
 
+let isBodyScrollLocked = false;
+
+function lockBodyScroll() {
+  if (isBodyScrollLocked) return;
+  const scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.overflow = 'hidden';
+  isBodyScrollLocked = true;
+}
+
+function unlockBodyScroll() {
+  if (!isBodyScrollLocked) return;
+  const scrollY = document.body.style.top;
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.overflow = '';
+  if (scrollY) {
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+  }
+  isBodyScrollLocked = false;
+}
+
+const isAnyPanelOpen = computed(() => {
+  return (isMobileChapterPanelOpen.value && activeAsideTab.value === 'outline') || 
+         (activeAsideTab.value === 'annotations');
+});
+
+watch(isAnyPanelOpen, (isOpen) => {
+  if (isMobileViewport.value) {
+    if (isOpen) {
+      lockBodyScroll();
+    } else {
+      unlockBodyScroll();
+    }
+  }
+});
+
 onUnmounted(() => {
+  unlockBodyScroll();
   localNavObserver?.disconnect();
   localNavObserver = null;
 
@@ -489,6 +600,9 @@ onUnmounted(() => {
 
   window.removeEventListener('resize', queueViewportSync);
   document.removeEventListener('click', handleMobileOutsideClick);
+  document.removeEventListener('click', handlePDFSearchResultClick, true);
+  document.removeEventListener('click', handleChapterLinkClick, true);
+  document.removeEventListener(PDF_OUTLINE_JUMP_EVENT, handlePDFOutlineJump as EventListener, true);
 
   if (iosCalloutClassApplied) {
     document.documentElement.classList.remove('ios-touch-device');

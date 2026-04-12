@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, shallowRef } from 'vue';
 import { v4 as uuidv4 } from 'uuid';
 import type { Annotation, User, Reply } from '../utils/types';
 import { DEFAULT_TAG_COLORS } from '../utils/types';
@@ -10,7 +10,7 @@ import { isSupabaseConfigured } from '../utils/supabase';
 
 export const useAnnotationStore = defineStore('annotation', () => {
   const userStore = useUserStore();
-  const annotations = ref<Annotation[]>([]);
+  const annotations = shallowRef<Annotation[]>([]);
   const currentPagePath = ref<string>('');
   const selectedAnnotationId = ref<string | null>(null);
   const filterUser = ref<string | null>(null);
@@ -212,7 +212,7 @@ export const useAnnotationStore = defineStore('annotation', () => {
       isCollapsed: false
     };
 
-    annotations.value.push(annotation);
+    annotations.value = [...annotations.value, annotation];
     void syncAnnotationToCloud(annotation);
     return annotation;
   }
@@ -220,14 +220,16 @@ export const useAnnotationStore = defineStore('annotation', () => {
   function updateAnnotation(id: string, updates: Partial<Annotation>) {
     const index = annotations.value.findIndex(a => a.id === id);
     if (index >= 0) {
-      annotations.value[index] = {
-        ...annotations.value[index],
+      const newAnnotations = [...annotations.value];
+      newAnnotations[index] = {
+        ...newAnnotations[index],
         ...updates,
-        pagePath: normalizePagePath(annotations.value[index].pagePath),
+        pagePath: normalizePagePath(newAnnotations[index].pagePath),
         modified: new Date().toISOString()
       };
+      annotations.value = newAnnotations;
 
-      const updated = annotations.value[index];
+      const updated = newAnnotations[index];
       if (userStore.currentUser?.id === updated.creator.id) {
         void syncAnnotationToCloud(updated);
       }
@@ -252,23 +254,30 @@ export const useAnnotationStore = defineStore('annotation', () => {
   }
 
   function toggleLike(annotationId: string, userId: string) {
-    const annotation = annotations.value.find(a => a.id === annotationId);
+    const newAnnotations = [...annotations.value];
+    const annotation = newAnnotations.find(a => a.id === annotationId);
     if (annotation) {
       const likeIndex = annotation.likes.indexOf(userId);
-      if (likeIndex >= 0) {
-        annotation.likes.splice(likeIndex, 1);
-      } else {
-        annotation.likes.push(userId);
-      }
+      const updatedAnnotation = {
+        ...annotation,
+        likes: likeIndex >= 0
+          ? annotation.likes.filter((_, i) => i !== likeIndex)
+          : [...annotation.likes, userId]
+      };
+      
+      const index = newAnnotations.findIndex(a => a.id === annotationId);
+      newAnnotations[index] = updatedAnnotation;
+      annotations.value = newAnnotations;
 
-      if (userStore.currentUser?.id === annotation.creator.id) {
-        void syncAnnotationToCloud(annotation);
+      if (userStore.currentUser?.id === updatedAnnotation.creator.id) {
+        void syncAnnotationToCloud(updatedAnnotation);
       }
     }
   }
 
   function addReply(annotationId: string, content: string, user: User) {
-    const annotation = annotations.value.find(a => a.id === annotationId);
+    const newAnnotations = [...annotations.value];
+    const annotation = newAnnotations.find(a => a.id === annotationId);
     if (annotation) {
       const reply: Reply = {
         id: uuidv4(),
@@ -278,40 +287,69 @@ export const useAnnotationStore = defineStore('annotation', () => {
         created: new Date().toISOString(),
         likes: []
       };
-      annotation.replies.push(reply);
+      
+      const updatedAnnotation = {
+        ...annotation,
+        replies: [...annotation.replies, reply]
+      };
+      
+      const index = newAnnotations.findIndex(a => a.id === annotationId);
+      newAnnotations[index] = updatedAnnotation;
+      annotations.value = newAnnotations;
 
-      if (userStore.currentUser?.id === annotation.creator.id) {
-        void syncAnnotationToCloud(annotation);
+      if (userStore.currentUser?.id === updatedAnnotation.creator.id) {
+        void syncAnnotationToCloud(updatedAnnotation);
       }
     }
   }
 
   function deleteReply(annotationId: string, replyId: string) {
-    const annotation = annotations.value.find(a => a.id === annotationId);
+    const newAnnotations = [...annotations.value];
+    const annotation = newAnnotations.find(a => a.id === annotationId);
     if (annotation) {
-      annotation.replies = annotation.replies.filter(r => r.id !== replyId);
+      const updatedAnnotation = {
+        ...annotation,
+        replies: annotation.replies.filter(r => r.id !== replyId)
+      };
+      
+      const index = newAnnotations.findIndex(a => a.id === annotationId);
+      newAnnotations[index] = updatedAnnotation;
+      annotations.value = newAnnotations;
 
-      if (userStore.currentUser?.id === annotation.creator.id) {
-        void syncAnnotationToCloud(annotation);
+      if (userStore.currentUser?.id === updatedAnnotation.creator.id) {
+        void syncAnnotationToCloud(updatedAnnotation);
       }
     }
   }
 
   function toggleReplyLike(annotationId: string, replyId: string, userId: string) {
-    const annotation = annotations.value.find(a => a.id === annotationId);
+    const newAnnotations = [...annotations.value];
+    const annotation = newAnnotations.find(a => a.id === annotationId);
     if (annotation) {
-      const reply = annotation.replies.find(r => r.id === replyId);
-      if (reply) {
-        const likeIndex = reply.likes.indexOf(userId);
-        if (likeIndex >= 0) {
-          reply.likes.splice(likeIndex, 1);
-        } else {
-          reply.likes.push(userId);
+      const updatedReplies = annotation.replies.map(reply => {
+        if (reply.id === replyId) {
+          const likeIndex = reply.likes.indexOf(userId);
+          return {
+            ...reply,
+            likes: likeIndex >= 0
+              ? reply.likes.filter((_, i) => i !== likeIndex)
+              : [...reply.likes, userId]
+          };
         }
+        return reply;
+      });
+      
+      const updatedAnnotation = {
+        ...annotation,
+        replies: updatedReplies
+      };
+      
+      const index = newAnnotations.findIndex(a => a.id === annotationId);
+      newAnnotations[index] = updatedAnnotation;
+      annotations.value = newAnnotations;
 
-        if (userStore.currentUser?.id === annotation.creator.id) {
-          void syncAnnotationToCloud(annotation);
-        }
+      if (userStore.currentUser?.id === updatedAnnotation.creator.id) {
+        void syncAnnotationToCloud(updatedAnnotation);
       }
     }
   }

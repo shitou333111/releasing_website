@@ -9,6 +9,37 @@ import type { Annotation } from '../utils/types';
 import { copyTextToClipboard } from '../utils/clipboard';
 import '@recogito/text-annotator/text-annotator.css';
 
+function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let timer: number | null = null;
+  return (...args: Parameters<T>) => {
+    if (timer !== null) {
+      window.clearTimeout(timer);
+    }
+    timer = window.setTimeout(() => {
+      fn(...args);
+      timer = null;
+    }, delay);
+  };
+}
+
+function throttle<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let lastTime = 0;
+  let timer: number | null = null;
+  return (...args: Parameters<T>) => {
+    const now = Date.now();
+    if (now - lastTime >= delay) {
+      lastTime = now;
+      fn(...args);
+    } else if (timer === null) {
+      timer = window.setTimeout(() => {
+        lastTime = Date.now();
+        fn(...args);
+        timer = null;
+      }, delay - (now - lastTime));
+    }
+  };
+}
+
 const route = useRoute();
 const userStore = useUserStore();
 const annotationStore = useAnnotationStore();
@@ -1061,14 +1092,22 @@ function loadAnnotationsToRecogito() {
   });
 }
 
+let viewportChangeRaf = 0;
 function handleViewportChange() {
-  if (annotationStore.selectedAnnotationId) {
-    scheduleSelectedVisualSync();
-  }
-
-  if (!showQuickBubble.value) return;
-  scheduleQuickBubblePosition();
+  if (viewportChangeRaf) return;
+  
+  viewportChangeRaf = requestAnimationFrame(() => {
+    viewportChangeRaf = 0;
+    if (annotationStore.selectedAnnotationId) {
+      syncSelectedAnnotationVisual(annotationStore.selectedAnnotationId);
+    }
+    if (showQuickBubble.value) {
+      positionQuickBubble();
+    }
+  });
 }
+
+const debouncedHandleSelectionChange = debounce(handleSelectionChange, 100);
 
 function quickHighlight() {
   if (isQuickBubbleReadonly.value) return;
@@ -1163,7 +1202,7 @@ onMounted(() => {
   scheduleAnnotatorInit();
 
   document.addEventListener('click', handleDocumentClick);
-  document.addEventListener('selectionchange', handleSelectionChange, true);
+  document.addEventListener('selectionchange', debouncedHandleSelectionChange, true);
   if (isIOSTouchDevice()) {
     document.addEventListener('contextmenu', handleMobileContextMenu, true);
   }
@@ -1237,11 +1276,16 @@ onUnmounted(() => {
     quickBubbleRepositionRaf = 0;
   }
 
+  if (viewportChangeRaf) {
+    cancelAnimationFrame(viewportChangeRaf);
+    viewportChangeRaf = 0;
+  }
+
   clearSelectedAnnotationVisual();
   clearTextSelectionColorVariable();
 
   document.removeEventListener('click', handleDocumentClick);
-  document.removeEventListener('selectionchange', handleSelectionChange, true);
+  document.removeEventListener('selectionchange', debouncedHandleSelectionChange, true);
   if (isIOSTouchDevice()) {
     document.removeEventListener('contextmenu', handleMobileContextMenu, true);
   }

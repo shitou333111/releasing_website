@@ -104,7 +104,7 @@ export default defineConfig(withSidebar({
   useFolderTitleFromIndexFile: false,
   includeRootIndexFile: false,
   includeFolderIndexFile: false,
-  excludeByGlobPattern: ['.vitepress/**', 'public/**'],
+  excludeByGlobPattern: ['.vitepress/**', 'public/**', 'pdf-content/**'],
   collapsed: false,
   debugPrint: false
 }));

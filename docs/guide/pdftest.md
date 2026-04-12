@@ -21,6 +21,7 @@ pdfOutline:
 - 回复和点赞
 - 用户筛选
 - Supabase 云端账号与云同步
+- PDF 全文搜索
 
 ## 文本标注演示
 
@@ -52,7 +53,7 @@ pdfOutline:
 ### 全页铺展 PDF 示例（从第一页到最后一页）
 
 <PDFViewer
-	src="/PDFs/a.pdf"
+	src="/PDFs/guide/pdftest.pdf"
 	viewer-id="pdftest-main"
 	background="#F8FAFC"
 	embedMode="fullpage"
