@@ -58,6 +58,7 @@ type PDFOutlineItem = {
   title: string;
   page: number;
   level: number;
+  shownPage: number;
 };
 
 function clampOutlineLevel(level: number): number {
@@ -74,8 +75,8 @@ function parseInlinePDFOutlineItem(input: string): PDFOutlineItem | null {
     return null;
   }
 
-  const quotedMatch = raw.match(/^["“](.+?)["”]\s+(\d+)(?:\s+(\d+))?$/);
-  const plainMatch = raw.match(/^(.+?)\s+(\d+)(?:\s+(\d+))?$/);
+  const quotedMatch = raw.match(/^["“](.+?)["”]\s+(\d+)(?:\s+(\d+))?(?:\s+(\d+))?$/);
+  const plainMatch = raw.match(/^(.+?)\s+(\d+)(?:\s+(\d+))?(?:\s+(\d+))?$/);
   const matched = quotedMatch ?? plainMatch;
 
   if (!matched) {
@@ -84,7 +85,8 @@ function parseInlinePDFOutlineItem(input: string): PDFOutlineItem | null {
 
   const title = matched[1]?.trim();
   const page = Number(matched[2]);
-  const level = Number(matched[3] ?? 1);
+  const shownPage = Number(matched[3] ?? page);
+  const level = Number(matched[4] ?? 1);
 
   if (!title || !Number.isFinite(page) || page <= 0) {
     return null;
@@ -93,7 +95,8 @@ function parseInlinePDFOutlineItem(input: string): PDFOutlineItem | null {
   return {
     title,
     page,
-    level: clampOutlineLevel(level)
+    level: clampOutlineLevel(level),
+    shownPage
   };
 }
 
@@ -124,11 +127,13 @@ function normalizePDFOutlineItems(input: unknown): PDFOutlineItem[] {
 
     const titleRaw = typeof record.title === 'string' ? record.title.trim() : '';
     const levelRaw = Number(record.level ?? 1);
+    const shownPageRaw = Number(record.shownPage ?? page);
 
     list.push({
       title: titleRaw || `第 ${page} 页`,
       page,
-      level: clampOutlineLevel(levelRaw)
+      level: clampOutlineLevel(levelRaw),
+      shownPage: Number.isFinite(shownPageRaw) && shownPageRaw > 0 ? shownPageRaw : page
     });
 
     return list;
@@ -190,6 +195,17 @@ const noteIndicatorTooltip = computed(() => {
 
 const effectiveNoteDotClass = computed(() => {
   return isPageNotesEnabled.value ? cloudStatusClass.value : 'is-off';
+});
+
+const contentMaxWidth = computed(() => {
+  const value = frontmatter.value?.contentMaxWidth;
+  if (typeof value === 'number' && value > 0) {
+    return `${value}px`;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    return value.trim();
+  }
+  return undefined;
 });
 
 function togglePageNotesEnabled() {
@@ -612,7 +628,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Layout :class="['annotation-layout', `aside-tab-${activeAsideTab}`]">
+  <Layout :class="['annotation-layout', `aside-tab-${activeAsideTab}`]" :style="contentMaxWidth ? { '--content-max-width': contentMaxWidth } : undefined">
     <template #aside-outline-before>
       <div
         v-if="canShowNotesControls"

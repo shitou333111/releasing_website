@@ -1,0 +1,34 @@
+---
+outline: false
+notesEnabled: false
+pdfViewerId: pdftest-main
+pdfOutline:
+  - '"第一章 走向莱斯特之路" 3 343'
+  - '"第二章 遇见莱斯特" 11 351'
+  - '"第三章 生日快乐" 18 358'
+  - '"第四章 "斯蒂芬"的终结" 22 362'
+  - '"第五章 在世间创造我们想要的" 26 366'
+  - '"第六章 更多关于在世间的创造" 32 372'
+  - '"第七章 在这个世界获得成功" 42 382'
+  - '"第八章 只有两个“不要”" 45 385'
+  - '"第九章 外太空有智慧生命存在吗？" 51 391'
+  - '"第十章 我们都想要什么" 58 398'
+  - '"第十一章 性以及其他逃避方式" 62 402'
+  - '"第十二章 超越业力" 65 405'
+  - '"第十三章 对未来世界的预言" 70 410'
+  - '"第十四章 莱斯特在强化班上" 72 412'
+---
+
+
+<PDFViewer
+	src="/PDFs/书/我和莱斯特PDF.pdf"
+	viewer-id="pdftest-main"
+	embedMode="fullpage"
+	:enable-crop="false"
+	:show-page-separators="true"
+	:show-crop-guides="false"
+	:lazy-page-buffer="2"
+	lazy-root-margin="180% 0px"
+	:crop-odd ="{ top: 200, right: 80, bottom: 150, left: 134 }"
+	:crop-even="{ top: 200, right: 134, bottom: 150, left: 80 }"
+/>

@@ -330,8 +330,10 @@ body,
   width: 288px;
 }
 
-.annotation-layout .VPDoc.has-aside .content-container {
-  max-width: 800px;
+/* 页面中间主体内容宽度 */
+.annotation-layout .VPDoc.has-aside .content-container,
+.annotation-layout .VPDoc:not(.has-aside) .content-container {
+  max-width: var(--content-max-width, 800px);
   margin: 0 auto;
 }
 
@@ -348,6 +350,11 @@ body,
     flex: 1 1 auto;
     min-width: 0;
     margin: 0;
+  }
+
+  .annotation-layout .VPDoc .content-container {
+    max-width: var(--content-max-width, 800px);
+    margin: 0 auto;
   }
 
   .annotation-layout .VPDoc .aside {
@@ -1371,10 +1378,12 @@ body,
 .pdf-viewer-container {
   position: relative;
   width: 100%;
+  max-width: 100%;
   border: 1px solid var(--vp-c-divider);
   border-radius: 10px;
   margin: 12px 0;
   background: var(--pdf-page-background, #ffffff);
+  box-sizing: border-box;
 }
 
 .pdf-viewer-container.hide-border {
@@ -1416,6 +1425,10 @@ body,
   align-items: center;
   gap: 12px;
   padding: 10px 0;
+}
+
+.pdf-viewer-container.pdf-mode-fullpage .pdf-vue-pages {
+  min-height: 0;
 }
 
 .pdf-vue-page {
@@ -1917,5 +1930,63 @@ html.ios-touch-device .pdf-viewer-container .textLayer * {
   will-change: top, left, width, height;
   transform: translateZ(0);
   backface-visibility: hidden;
+}
+
+.vp-doc img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vp-doc figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.vp-doc figure img {
+  display: block;
+  margin: 0;
+}
+
+.dark .pdf-viewer-container {
+  background: var(--vp-c-bg) !important;
+  border-color: var(--vp-c-divider);
+}
+
+.dark .pdf-page-crop-mask,
+.dark .pdf-page-crop-content {
+  background: var(--vp-c-bg) !important;
+}
+
+.dark .pdf-page-crop-content canvas {
+  filter: invert(0.88) hue-rotate(180deg) saturate(1.2);
+  mix-blend-mode: normal;
+}
+
+.dark .pdf-page-highlight-layer {
+  mix-blend-mode: screen;
+}
+
+.dark .pdf-annotation-highlight {
+  opacity: 0.65;
+}
+
+.dark .pdf-annotation-highlight.pdf-annotation-highlight-outline {
+  opacity: 1;
+}
+
+.dark .annotation-selected-outline-box {
+  outline-color: #f5f5f5 !important;
+}
+
+.dark .vp-doc .r6o-span-highlight-layer {
+  mix-blend-mode: screen !important;
+}
+
+.dark .vp-doc .r6o-span-highlight-layer .r6o-annotation {
+  opacity: 0.85;
 }
 

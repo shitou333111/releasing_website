@@ -1,7 +1,16 @@
 import { defineConfig } from 'vitepress';
 import { withSidebar } from 'vitepress-sidebar';
+import implicitFigures from 'markdown-it-implicit-figures';
 
 export default defineConfig(withSidebar({
+  markdown: {
+    config: (md) => {
+      md.use(implicitFigures, {
+        figcaption: 'Title',
+        keepAlt: true
+      });
+    }
+  },
   lang: 'zh-CN',
   appearance: true,
   title: 'Releasing',

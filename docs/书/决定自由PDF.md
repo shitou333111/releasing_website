@@ -1,0 +1,46 @@
+---
+contentMaxWidth: 800
+outline: false
+notesEnabled: false
+pdfViewerId: pdftest-main
+pdfOutline:
+  - '"简介" 7 15'
+  - '"序曲 相遇莱斯特" 8 16'
+  - '"第一章 莱斯特的父母" 16 24'
+  - '"第二章 青少年时期的莱斯特" 21 29'
+  - '"第三章 莱斯特的恋爱" 34 42'
+  - '"第四章 心碎的夜晚" 40 48'
+  - '"第五章 工作、旅行、家庭变故" 47 55'
+  - '"第六章 往返两城的生活" 55 63'
+  - '"第七章 阑尾炎手术" 62 70'
+  - '"第八章 接近失控的情绪" 67 75'
+  - '"第九章 严重心脏病发作" 78 86'
+  - '"第十章 莱斯特在医院" 81 89'
+  - '"第十一章 开始探究人生真相" 89 97'
+  - '"第十二章 幸福是什么" 98 106'
+  - '"第十三章 自由" 103 109'
+  - '"第十四章 全知全能" 114 122'
+  - '"第十五章 当我需要时，我拥有我所需要的一切" 119 127'
+  - '"第十六章 第一次见到莱斯特" 133 141'
+  - '"第十七章 你想要什么" 138 146'
+  - '"第十八章 在牧场过夏天" 148 156'
+  - '"第十九章 幸福所在的地方" 154 162'
+  - '"第二十章 释放法课程开始初步形成" 164 172'
+  - '"作者后记" 171 179'
+---
+
+
+<PDFViewer
+	src="/PDFs/书/决定自由PDF.pdf"
+	background="#F8FAFC"
+	:show-border="true"
+	viewer-id="pdftest-main"
+	embedMode="fullpage"
+	:enable-crop="true"
+	:show-page-separators="true"
+	:show-crop-guides="false"
+	:lazy-page-buffer="2"
+	lazy-root-margin="180% 0px"
+	:crop-odd ="{ top: 200, right: 80, bottom: 150, left: 134 }"
+	:crop-even="{ top: 200, right: 134, bottom: 150, left: 80 }"
+/>

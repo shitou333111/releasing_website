@@ -90,6 +90,8 @@ let intersectingPages = new Set<number>();
 const pageShellRefs = new Map<number, HTMLElement>();
 const DEFAULT_PAGE_ASPECT_RATIO = Math.SQRT2;
 const MIN_VISIBLE_PAGE_SIZE = 16;
+const RESPONSIVE_CROP_BASE_WIDTH = 768;
+const RESPONSIVE_CROP_MIN_SCALE = 0.55;
 
 const pdfSource = computed(() => {
   if (!resolvedPDFSource.value) return undefined;
@@ -130,6 +132,25 @@ function getRawCropInsetsForPage(pageNumber: number): CropInsets {
   const legacyTrim = normalizePositiveNumber(props.trimX, 0);
   const source = pageNumber % 2 === 0 ? props.cropEven : props.cropOdd;
   return normalizeCropInsets(source, legacyTrim);
+}
+
+function getResponsiveCropInsetsForViewport(pageNumber: number, viewportWidth: number): CropInsets {
+  const raw = getRawCropInsetsForPage(pageNumber);
+  if (!props.enableCrop) {
+    return raw;
+  }
+
+  if (!Number.isFinite(viewportWidth) || viewportWidth <= 0 || viewportWidth >= RESPONSIVE_CROP_BASE_WIDTH) {
+    return raw;
+  }
+
+  const scale = Math.max(RESPONSIVE_CROP_MIN_SCALE, viewportWidth / RESPONSIVE_CROP_BASE_WIDTH);
+  return {
+    top: round2(raw.top * scale),
+    right: round2(raw.right * scale),
+    bottom: round2(raw.bottom * scale),
+    left: round2(raw.left * scale)
+  };
 }
 
 function getCropSignature(): string {
@@ -743,6 +764,17 @@ function teardownFullPageObserver() {
   }
 }
 
+function getIntrinsicFullPageContentHeight(stage: HTMLElement): number {
+  const pagesRoot = stage.querySelector('.pdf-vue-pages') as HTMLElement | null;
+  if (!pagesRoot) {
+    return Math.ceil(stage.scrollHeight);
+  }
+
+  // Measure the pages container directly to avoid a feedback loop where
+  // container height itself becomes the next measurement baseline.
+  return Math.ceil(pagesRoot.scrollHeight);
+}
+
 function syncFullPageHeight(force = false) {
   if (props.embedMode !== 'fullpage' || !containerRef.value) return;
 
@@ -752,10 +784,10 @@ function syncFullPageHeight(force = false) {
   }
 
   const stage = containerRef.value;
-  const scrollBased = Math.ceil(stage.scrollHeight + 32);
-  const nextHeight = Math.max(scrollBased, window.innerHeight);
+  const contentBased = getIntrinsicFullPageContentHeight(stage);
+  const nextHeight = Math.max(contentBased, window.innerHeight);
 
-  if (Math.abs(nextHeight - lastFullPageHeightPx) >= 8 || force) {
+  if (Math.abs(nextHeight - lastFullPageHeightPx) >= 4 || force) {
     lastFullPageHeightPx = nextHeight;
     fullPageHeight.value = `${nextHeight}px`;
   }
@@ -804,22 +836,22 @@ function syncPdfPageWidth(force = false) {
   const frame = cropFrameRef.value;
   if (!frame) return;
 
+  const frameWidth = frame.getBoundingClientRect().width;
   let horizontalPadding = 0;
   if (props.enableCrop) {
-    const fallback = normalizePositiveNumber(props.trimX, 0);
-    const oddCrop = normalizeCropInsets(props.cropOdd, fallback);
-    const evenCrop = normalizeCropInsets(props.cropEven, fallback);
+    const oddCrop = getResponsiveCropInsetsForViewport(1, frameWidth);
+    const evenCrop = getResponsiveCropInsetsForViewport(2, frameWidth);
     horizontalPadding = Math.max(oddCrop.left + oddCrop.right, evenCrop.left + evenCrop.right);
   }
 
-  const measured = Math.floor(frame.clientWidth + horizontalPadding);
+  const measured = frameWidth + horizontalPadding;
   if (!Number.isFinite(measured) || measured <= 120) return;
 
-  if (!force && pdfPageWidth.value && Math.abs(pdfPageWidth.value - measured) < 2) {
+  if (!force && pdfPageWidth.value && Math.abs(pdfPageWidth.value - measured) < 0.25) {
     return;
   }
 
-  pdfPageWidth.value = measured;
+  pdfPageWidth.value = round2(measured);
 }
 
 function teardownPageWidthObserver() {
@@ -1046,7 +1078,8 @@ function getRenderedPageSize(pageNumber: number): { width: number; height: numbe
 
 function getPageCropLayout(pageNumber: number) {
   const pageSize = getRenderedPageSize(pageNumber);
-  const rawCrop = getRawCropInsetsForPage(pageNumber);
+  const viewportWidth = Number(cropFrameRef.value?.getBoundingClientRect().width || pageSize.width || 0);
+  const rawCrop = getResponsiveCropInsetsForViewport(pageNumber, viewportWidth);
 
   const maxLeft = Math.max(0, pageSize.width - MIN_VISIBLE_PAGE_SIZE);
   const left = Math.min(rawCrop.left, maxLeft);
@@ -1607,6 +1640,8 @@ function handleStageClick(event: MouseEvent) {
 }
 
 function handleViewportChange(event?: Event) {
+  const isScrollEvent = event?.type === 'scroll';
+
   if (!event || event.type !== 'scroll') {
     syncPdfPageWidth();
   }
@@ -1615,7 +1650,9 @@ function handleViewportChange(event?: Event) {
     scheduleQuickBubblePosition();
   }
 
-  scheduleFullPageHeightSync(true);
+  // During active scrolling, avoid forcing height updates every frame,
+  // otherwise the bottom boundary can keep shifting and feel like "rebound".
+  scheduleFullPageHeightSync(!isScrollEvent);
 }
 
 function revokeResolvedPDFObjectURL() {

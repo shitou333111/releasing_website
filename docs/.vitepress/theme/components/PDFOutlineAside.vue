@@ -5,6 +5,7 @@ type PDFOutlineItem = {
   title: string;
   page: number;
   level?: number;
+  shownPage?: number;
 };
 
 const props = withDefaults(defineProps<{
@@ -29,6 +30,10 @@ function buildItemStyle(item: PDFOutlineItem): Record<string, string> {
   return {
     marginLeft: `${(level - 1) * 12}px`
   };
+}
+
+function getShownPage(item: PDFOutlineItem): number {
+  return item.shownPage ?? item.page;
 }
 
 function jumpToPage(item: PDFOutlineItem) {
@@ -60,7 +65,7 @@ function jumpToPage(item: PDFOutlineItem) {
             @click="jumpToPage(item)"
           >
             <span class="pdf-outline-link-title" :style="buildItemStyle(item)">{{ item.title }}</span>
-            <span class="pdf-outline-link-page">P{{ item.page }}</span>
+            <span class="pdf-outline-link-page">P{{ getShownPage(item) }}</span>
           </button>
         </li>
       </ul>

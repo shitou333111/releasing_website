@@ -1,15 +1,3 @@
----
-outline: false
-notesEnabled: false
-pdfViewerId: pdftest-main
-pdfOutline:
-  - '"封面" 1'
-  - '"前言" 3'
-  - '"第一章" 200'
-  - '"第二章" 400'
-  - '"第三章  它符合人体有吗人发贴用户对人体冯太后的然后对方同意后" 250'
----
-
 # 共享阅读标注系统演示
 
 欢迎使用共享阅读标注系统！这个系统支持：
@@ -21,7 +9,6 @@ pdfOutline:
 - 回复和点赞
 - 用户筛选
 - Supabase 云端账号与云同步
-- PDF 全文搜索
 
 ## 文本标注演示
 
@@ -53,17 +40,14 @@ pdfOutline:
 ### 全页铺展 PDF 示例（从第一页到最后一页）
 
 <PDFViewer
-	src="/PDFs/guide/pdftest.pdf"
-	viewer-id="pdftest-main"
-	background="#F8FAFC"
+	src="/PDFs/guide/pdftesten.pdf"
+	background="#ffffff"
 	embedMode="fullpage"
-	:enable-crop="false"
-	:show-page-separators="true"
-	:show-crop-guides="false"
+	:show-crop-guides="true"
 	:lazy-page-buffer="2"
 	lazy-root-margin="180% 0px"
-	:crop-odd ="{ top: 200, right: 80, bottom: 150, left: 134 }"
-	:crop-even="{ top: 200, right: 134, bottom: 150, left: 80 }"
+	:crop-odd="{ top: 140, right: 70, bottom: 140, left: 80 }"
+	:crop-even="{ top: 140, right: 80, bottom: 140, left: 70 }"
 />
 
 ## 功能实现状态（2026-04）
