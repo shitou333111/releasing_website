@@ -58,6 +58,31 @@ npm run docs:preview
 - `docs:dev`: `vitepress dev docs --host 0.0.0.0 --port 5174`
 - `docs:build`: `vitepress build docs`
 - `docs:preview`: `vitepress preview docs --host 0.0.0.0 --port 5174`
+- `gen-tts-assets`: 为启用 `readAloudEnabled: true` 的文章生成朗读资源（音频 + 段落时间轴）
+
+### 4.1 文章朗读资源生成（Xiaomi MiMo TTS）
+
+先配置环境变量：
+
+- `MIMO_API_KEY`（必填）
+- `MIMO_TTS_VOICE`（可选，默认 `default_zh`）
+- `MIMO_TTS_STYLE`（可选，示例：`平静`）
+- `MIMO_TTS_MAX_CHARS`（可选，默认 `260`，控制单次请求分片长度）
+
+执行命令：
+
+```bash
+npm run gen-tts-assets
+```
+
+当前试点页面：`docs/书/决定自由.md`（front matter: `readAloudEnabled: true`）。
+
+生成产物目录：
+
+- `docs/public/tts/manifest.json`
+- `docs/public/tts/书/决定自由/final.wav`
+- `docs/public/tts/书/决定自由/cues.json`
+- `docs/public/tts/书/决定自由/segments.json`
 
 ## 5. 目录结构
 
@@ -306,3 +331,53 @@ pdfOutline:
 - 新增页面优先补 frontmatter `title`，确保侧边栏命名可控。
 - 需要页面级关闭标注时，建议在 `annotations.config.ts` 与页面 frontmatter 双层控制。
 - 变更 Layout 或标注存储逻辑后，务必执行一次 `npm run docs:build` 回归验证。
+
+## 14. 朗读（TTS）资源生成 — 详细说明
+
+本项目内置一套将文章转换为可在网站播放的音频与时间轴（cue）文件的流水线。下面说明哪些文件是网站运行时需要的、可选的调试产物，以及精确的运行命令与常用参数。
+
+**最终用于网站的文件**
+- `docs/public/tts/<article>/final.chunked.wav` — 最终合并音频（网站播放用）
+- `docs/public/tts/<article>/cues.final.json` — 每段落的最终时间戳与元数据（用于高亮、跳转与字幕）
+- `docs/public/tts/<article>/segments.chunked.json` — 段落/标题原文与顺序映射（可选，便于显示原文或调试）
+
+**调试与中间产物（网站通常不引用）**
+- `docs/public/tts/<article>/chunk-###.txt` — 每个 chunk 的合成输入文本
+- `docs/public/tts/<article>/chunk-###.orig.wav` — 每个 chunk 的原始合成音频（缓存，供局部重合成）
+- `docs/public/tts/<article>/mfa_output/*.TextGrid`、`cues.mfa.json`、`cues.mfa.postproc.json` — 强制对齐（MFA）产生的中间文件，用于生成最终 `cues.final.json`
+
+**主要运行命令（在仓库根目录执行）**
+
+1) 一键完整强制重生成（TTS → MFA → 后处理 → 合并）
+```powershell
+$env:TTS_CONCURRENCY='8'
+node docs/.vitepress/gen-tts-chunked.js "书/决定自由.md" --force
+```
+
+2) 仅运行 TTS（使用本地缓存，跳过 MFA 与后处理）
+```powershell
+$env:TTS_CONCURRENCY='8'
+node docs/.vitepress/gen-tts-chunked.js "书/决定自由.md" --skip-mfa
+```
+
+3) 两阶段（先 TTS 使用缓存，再单独运行 MFA + 后处理 + 合并）
+- 阶段一（TTS）：与上面第 2 相同
+- 阶段二（对齐与合并）：
+```powershell
+python docs/.vitepress/gen-tts-align-mfa.py --dir "docs/public/tts/书/决定自由" --dict mandarin_china_mfa --acoustic mandarin_mfa --conda-env mfa --mfa-opts "--fast --beam 10 --retry_beam 40 --no_debug --jobs 4"
+node docs/.vitepress/postprocess-unaligned-cues.cjs "docs/public/tts/书/决定自由"
+node docs/.vitepress/merge-segments-and-cues.cjs "docs/public/tts/书/决定自由"
+```
+
+**常用环境变量与选项**
+- `MIMO_API_KEY`（必填）：TTS 服务密钥。
+- `TTS_CONCURRENCY`（可选，默认 8）：并发合成 chunk 数量。
+- `FORCE_REGEN=1` 或命令行 `--force`：强制忽略最终合成缓存并重新生成全部 chunk（常在更改模型/参数或需要彻底重做时使用）。
+- `--skip-mfa` 或 `SKIP_MFA=1`：只运行 TTS，跳过 MFA 与后处理（用于快速验证合成缓存）。
+
+**工作流说明（行为细节）**
+- 默认会使用本地缓存的 `chunk-###.orig.wav`，仅对缺失或被判定为损坏的 chunk 重新合成。
+- 在存在 `mfa_output` 的情况下，脚本会检测哪些 chunk 未生成对应 `TextGrid`，并删除那些失败的 `.orig.wav`，以便下一次运行时仅重新合成失败的 chunk（避免全部重合成）。
+- 当你确认需要从头重做（覆盖所有缓存）时，使用 `--force`。
+
+如需我把该节插入到其他文档位置或生成单独的 `docs/README-TTS.md`，告诉我我会再调整。

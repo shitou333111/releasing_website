@@ -78,6 +78,179 @@ body,
   display: none;
 }
 
+.read-aloud-controller {
+  position: sticky;
+  top: calc(var(--vp-nav-height) + 12px);
+  z-index: 28;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 14px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-c-divider);
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 86%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.read-aloud-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--vp-c-brand-1);
+  background: color-mix(in srgb, var(--vp-c-brand-1) 10%, var(--vp-c-bg));
+  color: var(--vp-c-brand-1);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.read-aloud-toggle[disabled] {
+  border-color: var(--vp-c-divider);
+  color: var(--vp-c-text-3);
+  background: var(--vp-c-bg-soft);
+  cursor: not-allowed;
+}
+
+.read-aloud-status {
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.read-aloud-audio {
+  display: none;
+}
+
+.vp-doc .read-aloud-seekable {
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.vp-doc .read-aloud-active {
+  background: color-mix(in srgb, var(--vp-c-brand-1) 18%, transparent);
+  border-radius: 6px;
+}
+
+/* Floating ball variant */
+.read-aloud-float-container {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+
+.read-aloud-ball {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(243,250,248,0.82));
+  color: var(--vp-c-brand-1);
+  box-shadow: 0 8px 30px rgba(11,17,32,0.12), 0 2px 6px rgba(15,118,110,0.06);
+  border: 1px solid rgba(15,118,110,0.08);
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(.2,.9,.2,1), opacity 180ms ease, box-shadow 180ms ease;
+  backdrop-filter: blur(6px);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* paused state: half-transparent */
+  opacity: 0.5;
+  padding-bottom: 6px; /* space for background icon */
+  position: relative;
+  overflow: visible;
+}
+
+.read-aloud-ball:hover {
+  transform: translateY(-4px) scale(1.03);
+}
+
+.read-aloud-ball:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.read-aloud-ball.is-loading {
+  opacity: 0.45;
+}
+
+.read-aloud-ball.is-playing {
+  /* play state: 90% */
+  opacity: 0.9;
+}
+
+.read-aloud-bg-icon {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  opacity: 0.7; /* improved visibility */
+  z-index: 0;
+  pointer-events: none;
+  color: var(--vp-c-brand-1);
+  transition: opacity 160ms ease, transform 160ms ease, filter 160ms ease;
+  filter: drop-shadow(0 2px 6px rgba(15,118,110,0.08));
+}
+
+.read-aloud-ball.is-playing .read-aloud-bg-icon {
+  opacity: 0.48;
+  transform: translateX(-50%) scale(1.08);
+  filter: drop-shadow(0 4px 12px rgba(15,118,110,0.12));
+}
+
+.read-aloud-icon {
+  display: none;
+}
+
+.read-aloud-times {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--vp-c-text-1);
+  padding-top: 6px;
+  z-index: 1; /* ensure times sit above the bg icon */
+}
+
+.read-aloud-times .current-time {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.read-aloud-times .total-time {
+  font-weight: 500;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+@media (max-width: 640px) {
+  .read-aloud-float-container {
+    right: 14px;
+    bottom: 14px;
+  }
+  .read-aloud-ball {
+    width: 50px;
+    height: 50px;
+  }
+  .read-aloud-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .annotation-layout .mobile-localnav-tab {
   display: inline-flex;
   align-items: center;
@@ -188,6 +361,11 @@ body,
 }
 
 @media (max-width: 959px) {
+  .read-aloud-controller {
+    position: static;
+    margin-top: 6px;
+  }
+
   .annotation-layout .VPDoc {
     padding-left: 0;
     padding-right: 0;
@@ -310,6 +488,12 @@ body,
 .vp-doc p {
   text-align: justify;
   text-justify: inter-ideograph;
+}
+
+/* 调整段落间距 Make paragraph spacing equal to 0.5 * line-height */
+.vp-doc p {
+  margin-block-start: 0;
+  margin-block-end: 0.2lh;
 }
 
 .annotation-layout .VPDocAside,
@@ -686,6 +870,24 @@ body,
 .vp-doc .r6o-span-highlight-layer .r6o-annotation {
   transform-origin: center center;
   transform: scaleY(1.4);
+}
+
+/* 针对外部HTMLViewer，统一高亮高度 */
+.external-html-viewer-container .t {
+  line-height: 1.5 !important;
+}
+
+.external-html-viewer-container .t span,
+.external-html-viewer-container .t * {
+  line-height: inherit !important;
+  vertical-align: baseline !important;
+}
+
+.external-html-viewer-container .r6o-span-highlight-layer .r6o-annotation {
+  transform: scaleY(1.5) !important;
+  transform-origin: center center !important;
+  display: inline !important;
+  vertical-align: middle !important;
 }
 
 @keyframes annotation-focus-pulse {
@@ -1375,6 +1577,205 @@ body,
   border-color: var(--vp-c-text-1);
 }
 
+.external-html-viewer-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 12px 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 5px;
+  background: var(--external-html-background, #ffffff);
+  box-sizing: border-box;
+}
+
+.external-html-viewer-container.hide-border {
+  border: none;
+}
+
+.external-html-viewer-container.external-html-mode-contained {
+  height: var(--external-html-height, 72vh);
+  overflow: hidden;
+}
+
+.external-html-viewer-container.external-html-mode-fullpage {
+  height: auto;
+  overflow: visible;
+}
+
+.external-html-content {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 120px;
+  background: transparent;
+}
+
+.external-html-viewer-container.external-html-mode-contained .external-html-content {
+  height: 100%;
+  overflow: auto;
+  padding: 8px 0;
+}
+
+.external-html-viewer-container.external-html-mode-fullpage .external-html-content {
+  height: auto;
+  overflow: visible;
+  padding: 8px 0;
+}
+
+.external-html-viewer-container.show-page-separators .external-html-page-shell:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  bottom: -2px;
+  height: 1px;
+  background: color-mix(in srgb, var(--vp-c-divider) 82%, #9b9b9b);
+  pointer-events: none;
+}
+
+.external-html-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: var(--vp-c-text-2);
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 90%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.external-html-state.is-error {
+  color: var(--vp-c-danger-1);
+}
+
+.external-html-content #sidebar {
+  display: none !important;
+}
+
+.external-html-content,
+.external-html-content .external-html-page-container,
+.external-html-content #page-container {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  background: transparent !important;
+}
+
+.external-html-content .external-html-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 0;
+}
+
+.external-html-content .external-html-page.pf {
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+.external-html-content .external-html-page-shell {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.external-html-content .external-html-page-shell.is-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 86%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--vp-c-divider) 88%, transparent);
+}
+
+.external-html-content .external-html-page {
+  position: relative;
+  margin: 0;
+  box-sizing: border-box;
+  background: #fff;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1000px;
+}
+
+.external-html-content .external-html-page * {
+  /* Prevent backwards selection jump by ensuring WebKit can select cleanly throughout elements */
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.external-html-content .external-html-page-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.external-html-content .external-html-page-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.external-html-content .external-html-page .bf,
+.external-html-content .external-html-page .bi,
+.external-html-content .external-html-page img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+
+.external-html-content .external-html-page .pc {
+  /* Do not prevent events, allowing clicks and dragging freely without hitting container */
+  pointer-events: auto;
+}
+
+.external-html-content .external-html-page .t,
+.external-html-content .external-html-page .t * {
+  /* inherit user-select text */
+  cursor: text;
+  pointer-events: auto;
+}
+
+.external-html-viewer-container.show-crop-guides .external-html-page-shell[data-page-parity='odd'] .external-html-page-mask {
+  border: 1px solid rgba(34, 197, 94, 0.85);
+}
+
+.external-html-viewer-container.show-crop-guides .external-html-page-shell[data-page-parity='even'] .external-html-page-mask {
+  border: 1px solid rgba(239, 68, 68, 0.85);
+}
+
+.external-html-content .external-html-page.pf {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
+}
+
+.dark .external-html-viewer-container.external-html-mode-contained .external-html-content {
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 90%, #06090f 10%);
+}
+
+.dark .external-html-content .external-html-page.pf {
+  box-shadow: 0 4px 14px rgba(2, 6, 23, 0.5);
+}
+
 .pdf-viewer-container {
   position: relative;
   width: 100%;
@@ -1988,5 +2389,14 @@ html.ios-touch-device .pdf-viewer-container .textLayer * {
 
 .dark .vp-doc .r6o-span-highlight-layer .r6o-annotation {
   opacity: 0.85;
+}
+
+.t {
+    /* making selection to behave nicer when selecting text between multiple text lines (to avoid element gaps which can cause weird selection behavior) */
+    padding-bottom: 400px;
+    margin-bottom: -50px;
+
+    /* making selection to behave nicer when selecting text between multiple columns (useful for pages with 2 or more text columns) */
+    padding-right: 1000px;
 }
 

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "gen-pdf-index": "node docs/.vitepress/gen-pdf-index.js",
+    "gen-tts-assets": "node docs/.vitepress/gen-tts-assets.js",
     "docs:dev": "npm run gen-pdf-index && vitepress dev docs --host 0.0.0.0 --port 5174",
     "docs:build": "npm run gen-pdf-index && vitepress build docs",
     "docs:preview": "vitepress preview docs --host 0.0.0.0 --port 5174"
@@ -12,6 +13,7 @@
   "devDependencies": {
     "@types/diff-match-patch": "^1.0.36",
     "@types/uuid": "^10.0.0",
+    "markdown-it": "^14.1.1",
     "vitepress": "^1.6.3",
     "vitepress-sidebar": "^1.33.1"
   },
@@ -21,6 +23,7 @@
     "@supabase/supabase-js": "^2.102.1",
     "@tato30/vue-pdf": "^2.0.2",
     "diff-match-patch": "^1.0.5",
+    "epub2md": "^1.6.2",
     "markdown-it-implicit-figures": "^0.12.0",
     "pdf-parse": "^1.1.1",
     "pdf2json": "^4.0.2",

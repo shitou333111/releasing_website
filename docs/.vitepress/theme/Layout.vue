@@ -7,6 +7,7 @@ import { useAnnotationStore } from './stores/annotationStore';
 import AnnotationSidebar from './components/AnnotationSidebar.vue';
 import TextAnnotator from './components/TextAnnotator.vue';
 import PDFOutlineAside from './components/PDFOutlineAside.vue';
+import ArticleReadAloud from './components/ArticleReadAloud.vue';
 import { useAnnotationConfig } from './composables/useAnnotationConfig';
 import './custom.css';
 
@@ -269,7 +270,7 @@ function closeMobileChapterPanelIfOpen() {
 }
 
 function syncMobileChapterToggleState() {
-  if (!isMobileViewport.value || !isCustomPDFOutlineEnabled.value) {
+  if (!isMobileViewport.value) {
     return;
   }
 
@@ -697,6 +698,7 @@ onUnmounted(() => {
       </div>
     </template>
     <template #doc-after>
+      <ArticleReadAloud />
       <TextAnnotator v-if="isPageNotesEnabled" />
 
       <Teleport

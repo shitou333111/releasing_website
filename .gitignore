@@ -5,3 +5,22 @@ docs/.vitepress/cache/
 docs/.vitepress/dist/
 .DS_Store
 *.log
+docs/.vitepress/tts-cache.json
+docs/.vitepress/tts-cache-audio/
+
+# Ignore generated public assets
+/docs/public/epub/
+/docs/public/html/
+/docs/public/cmaps/
+/docs/public/PDFs/
+/docs/public/wasm/
+
+# Ignore tts content but keep cues.json and final.mp3 in subfolders
+/docs/public/tts/**
+!/docs/public/tts/**/
+!/docs/public/tts/**/cues.json
+!/docs/public/tts/**/final.mp3
+!/docs/public/tts/**/manifest.json
+
+# Ignore local generated PDF content directory
+/docs/pdf-content/

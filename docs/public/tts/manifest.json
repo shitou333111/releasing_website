@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-04-21T05:52:39.125Z",
+  "entries": {
+    "/书/决定自由": {
+      "routePath": "/书/决定自由",
+      "source": "书/决定自由.md",
+      "audio": "/tts/书/决定自由/final.mp3",
+      "cues": "/tts/书/决定自由/cues.json",
+      "segments": "/tts/书/决定自由/segments.json",
+      "count": 886,
+      "totalDuration": 19319.84,
+      "generatedAt": "2026-04-16T12:09:18.790Z",
+      "fingerprint": "063d39b51bd7ed65d273babcf9b6dcd4b4affa8d"
+    },
+    "/书/我和莱斯特": {
+      "routePath": "/书/我和莱斯特",
+      "source": "书/我和莱斯特.md",
+      "audio": "/tts/书/我和莱斯特/final.mp3",
+      "cues": "/tts/书/我和莱斯特/cues.json",
+      "segments": "/tts/书/我和莱斯特/segments.json",
+      "count": 311,
+      "totalDuration": 7895.3,
+      "generatedAt": "2026-04-20T11:28:57.676Z",
+      "fingerprint": "9244619d2d5a6a1558fa8498e53e3b243a43d68d"
+    },
+    "/书/莱斯特自传": {
+      "routePath": "/书/莱斯特自传",
+      "source": "书/莱斯特自传.md",
+      "audio": "/tts/书/莱斯特自传/final.mp3",
+      "cues": "/tts/书/莱斯特自传/cues.json",
+      "segments": "/tts/书/莱斯特自传/segments.json",
+      "count": 846,
+      "totalDuration": 11762.43,
+      "generatedAt": "2026-04-21T11:17:21.798+08:00",
+      "fingerprint": "2646664293623ece39229dc08c0405a593f6419d"
+    },
+    "/书/终极自由之路": {
+      "routePath": "/书/终极自由之路",
+      "source": "书/终极自由之路.md",
+      "audio": "/tts/书/终极自由之路/final.mp3",
+      "cues": "/tts/书/终极自由之路/cues.json",
+      "segments": "/tts/书/终极自由之路/segments.json",
+      "count": 2535,
+      "totalDuration": 33484.43,
+      "generatedAt": "2026-04-21T13:52:39.120+08:00",
+      "fingerprint": "01b590470f8763e09b6571bae85086a0766cb9f1"
+    }
+  }
+}
