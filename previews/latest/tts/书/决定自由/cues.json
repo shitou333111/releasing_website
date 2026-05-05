@@ -1,0 +1,309 @@
+{
+  "source": "书/决定自由.md",
+  "routePath": "/书/决定自由",
+  "totalDuration": 384.32,
+  "count": 20,
+  "generatedAt": "2026-05-04T20:48:50.885+08:00",
+  "cues": [
+    {
+      "id": "p-00001",
+      "index": 0,
+      "type": "heading",
+      "tag": "h2",
+      "start": 0,
+      "end": 1.92,
+      "duration": 1.92,
+      "fingerprint": "fnv1a-79a6143c",
+      "text": "简介",
+      "source": {
+        "lineStart": 25,
+        "lineEnd": 25
+      }
+    },
+    {
+      "id": "p-00002",
+      "index": 1,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 1.92,
+      "end": 28,
+      "duration": 26.08,
+      "fingerprint": "fnv1a-0d0d7396",
+      "text": "这本书可以为你展示一种在生活中实现个人成就的方法。你可以一遍又一遍地阅读它，每阅读一次，你都会发现一些新的东西来帮助你追求你想拥有的东西、成为你想要成为的人和做任何你想做的事。书中的一切都是真实的。",
+      "source": {
+        "lineStart": 27,
+        "lineEnd": 27
+      }
+    },
+    {
+      "id": "p-00003",
+      "index": 2,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 28,
+      "end": 51.52,
+      "duration": 23.52,
+      "fingerprint": "fnv1a-74cc7fa6",
+      "text": "这本书讲述了一个男人穿越自己个人困境的故事，他对人生感到日益沮丧直至绝望，而后当疾病缠身、严重心脏病发作时，他的绝望到达了顶峰，当时医生说他已经时日不多了。",
+      "source": {
+        "lineStart": 29,
+        "lineEnd": 29
+      }
+    },
+    {
+      "id": "p-00004",
+      "index": 3,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 51.52,
+      "end": 61.92,
+      "duration": 10.4,
+      "fingerprint": "fnv1a-f95f0a01",
+      "text": "那是莱斯特的转折点，后来他将已经宣判死刑的生活转变成一种极度快乐和平静的生活。",
+      "source": {
+        "lineStart": 31,
+        "lineEnd": 31
+      }
+    },
+    {
+      "id": "p-00005",
+      "index": 4,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 61.92,
+      "end": 90.72,
+      "duration": 28.8,
+      "fingerprint": "fnv1a-65be487c",
+      "text": "最后他一直与世界分享他的发现，设计了一种名为圣多纳释放法的系统技术，让其他人可以在自己的生活中跟随他的引导。成千上万的人已经体验到了这种简单方法所带来的奇妙、美丽和自由，这种方法可以消除我们在生活中都经历过的内心折磨。",
+      "source": {
+        "lineStart": 33,
+        "lineEnd": 33
+      }
+    },
+    {
+      "id": "p-00006",
+      "index": 5,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 90.72,
+      "end": 106.88,
+      "duration": 16.16,
+      "fingerprint": "fnv1a-2e4fc11b",
+      "text": "这本书讲述了莱斯特的故事，并详细阐述了他使用的内在过程，以便您也可以从今天开始踏上通往内心平静和喜悦的道路。",
+      "source": {
+        "lineStart": 35,
+        "lineEnd": 35
+      }
+    },
+    {
+      "id": "p-00007",
+      "index": 6,
+      "type": "heading",
+      "tag": "h2",
+      "start": 106.88,
+      "end": 111.36,
+      "duration": 4.48,
+      "fingerprint": "fnv1a-561923fc",
+      "text": "序曲 相遇莱斯特",
+      "source": {
+        "lineStart": 37,
+        "lineEnd": 37
+      }
+    },
+    {
+      "id": "p-00008",
+      "index": 7,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 111.36,
+      "end": 123.68,
+      "duration": 12.32,
+      "fingerprint": "fnv1a-ac7157dd",
+      "text": "当我还是个孩子时，我完全确信，如果你真的非常想要某样东西，你就会得到它。我很肯定这一点。",
+      "source": {
+        "lineStart": 39,
+        "lineEnd": 39
+      }
+    },
+    {
+      "id": "p-00009",
+      "index": 8,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 123.68,
+      "end": 155.68,
+      "duration": 32,
+      "fingerprint": "fnv1a-4fe00f9a",
+      "text": "然而，随着年龄的增长，我的生活并不总是反映出这种信念，我很困惑为什么。我曾以各种方式寻找答案:看书，与我认为可能知道的人交谈，以及尝试采用不同的方法以让我在演艺事业上获得成功。但我还是没有得到我想要的成功，我的\"为什么\"也没有得到答案。",
+      "source": {
+        "lineStart": 41,
+        "lineEnd": 41
+      }
+    },
+    {
+      "id": "p-00010",
+      "index": 9,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 155.68,
+      "end": 184.16,
+      "duration": 28.48,
+      "fingerprint": "fnv1a-f50273e1",
+      "text": "1967 年，我读了一本关于瑜伽的书，并在我居住的纽约市参加了几门瑜伽课程。我在试着找不同的老师，看他们中是否有人能指点一下我，但没有人帮到我。直到有一天晚上，当我在一个聚会上向朋友们讲述完我的一些经历后，其中一位女士建议我和彼得·沃尔德伦谈谈。",
+      "source": {
+        "lineStart": 43,
+        "lineEnd": 43
+      }
+    },
+    {
+      "id": "p-00011",
+      "index": 10,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 184.16,
+      "end": 201.12,
+      "duration": 16.96,
+      "fingerprint": "fnv1a-8dde3633",
+      "text": "\"彼得在练习另一种类型的瑜伽，\" 她说。\"他们做冥想，我记得他向我推荐了一本书，但我现在想不起来书名了。你为什么不打电话问问他呢？\"",
+      "source": {
+        "lineStart": 45,
+        "lineEnd": 45
+      }
+    },
+    {
+      "id": "p-00012",
+      "index": 11,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 201.12,
+      "end": 204,
+      "duration": 2.88,
+      "fingerprint": "fnv1a-e7c00bef",
+      "text": "\"我根本不认识他呀!\"",
+      "source": {
+        "lineStart": 47,
+        "lineEnd": 47
+      }
+    },
+    {
+      "id": "p-00013",
+      "index": 12,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 204,
+      "end": 227.52,
+      "duration": 23.52,
+      "fingerprint": "fnv1a-884aef9b",
+      "text": "\"哎呀，你丈夫认识他。彼得是个演员和作家，你丈夫为他剪辑过一个电影项目。你可以给彼得打电话，告诉他你是谁，你想要什么，他会很高兴和你谈话的。\" 她笑了，\"他喜欢谈论瑜伽， 他一点也不会介意的。\"",
+      "source": {
+        "lineStart": 49,
+        "lineEnd": 49
+      }
+    },
+    {
+      "id": "p-00014",
+      "index": 13,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 227.52,
+      "end": 252.8,
+      "duration": 25.28,
+      "fingerprint": "fnv1a-5c233c9f",
+      "text": "我说好的，但我并没有马上联系彼得。然而这段对话却一直萦绕在我的脑海中。1967 年的夏天，当我在事业、婚姻以及两个孩子(其中一个还是十几岁的孩子)之间努力维持平衡时，在巨大的压力之下，我这才给彼得打了电话，我们约好下周六在他的公寓里见面。",
+      "source": {
+        "lineStart": 51,
+        "lineEnd": 51
+      }
+    },
+    {
+      "id": "p-00015",
+      "index": 14,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 252.8,
+      "end": 290.88,
+      "duration": 38.08,
+      "fingerprint": "fnv1a-b516e7cb",
+      "text": "那天我一路急急忙忙地赶往彼得那里，感觉气喘吁吁，都仪容不整了，但还是到得有点晚了。我首先注意到的是那个地方的安静。彼得让我在客厅坐下，去给我们泡茶。我趁机环顾了一下四周，这是一个温馨宁静的房间，有一个象牙雕刻的微型庙宇，若干书籍以及舒适的家具陈设。我感觉自己放松了下来，当彼得端着茶回来时，我们开始交谈。",
+      "source": {
+        "lineStart": 53,
+        "lineEnd": 53
+      }
+    },
+    {
+      "id": "p-00016",
+      "index": 15,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 290.88,
+      "end": 325.6,
+      "duration": 34.72,
+      "fingerprint": "fnv1a-c2e759a5",
+      "text": "我们讨论了很多事情:戏剧、成功、出人头地的问题、人、信仰、精神成长，以及对自我和内在潜力的认识。彼得在那天打开了我的视野，让我看到了一个全新的世界，也让我踏上了探索和自我发现的道路，这将从根本上改变我的生活。但最重要的一句话是在他为我们准备食物时说的。那时他从厨房走进客厅，还在锅里搅拌着一些豌豆。",
+      "source": {
+        "lineStart": 55,
+        "lineEnd": 55
+      }
+    },
+    {
+      "id": "p-00017",
+      "index": 16,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 325.6,
+      "end": 329.28,
+      "duration": 3.68,
+      "fingerprint": "fnv1a-4ad897d8",
+      "text": "\"你得见见我的朋友莱斯特。\"",
+      "source": {
+        "lineStart": 57,
+        "lineEnd": 57
+      }
+    },
+    {
+      "id": "p-00018",
+      "index": 17,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 329.28,
+      "end": 340.32,
+      "duration": 11.04,
+      "fingerprint": "fnv1a-78243e9b",
+      "text": "就在他说这句话的那一刻，我心里有一种似曾相识的感觉，但我只是说:\"哦？给我讲讲他吧。\"",
+      "source": {
+        "lineStart": 59,
+        "lineEnd": 59
+      }
+    },
+    {
+      "id": "p-00019",
+      "index": 18,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 340.32,
+      "end": 371.2,
+      "duration": 30.88,
+      "fingerprint": "fnv1a-233e984e",
+      "text": "彼得告诉我他第一次见到莱斯特·利文森的经过。那是在 1950 年代末，彼得在亚利桑那州凤凰城出演一部由金格尔·罗杰斯主演的话剧。他听说有一个他想参加的冥想，便动身去找那个地方，由于不熟悉凤凰城，他过早下了车。当时他站在人行道上，一只手拿着地址，另一只手拿着城市地图，正当他想弄清楚该走哪条路时，他听到一个声音说:\"是那条路。\"",
+      "source": {
+        "lineStart": 61,
+        "lineEnd": 61
+      }
+    },
+    {
+      "id": "p-00020",
+      "index": 19,
+      "type": "paragraph",
+      "tag": "p",
+      "start": 371.2,
+      "end": 384.32,
+      "duration": 13.12,
+      "fingerprint": "fnv1a-e527cd58",
+      "text": "他环顾四周，想看看是谁在说话，但街道上没有其他人。他开始怀疑自己是否听错了，这时那个声音又说话了:\"是那条路。\"",
+      "source": {
+        "lineStart": 63,
+        "lineEnd": 63
+      }
+    }
+  ]
+}
