@@ -38,6 +38,11 @@ export default defineConfig(withSidebar({
   lastUpdated: true,
   vite: {
     envDir: '..',
+    server: {
+      fs: {
+        strict: false
+      }
+    },
     plugins: [
       {
         name: 'auto-restart-on-docs-structure-change',
@@ -89,15 +94,19 @@ export default defineConfig(withSidebar({
     outlineTitle: '章节',
     nav: [
       { text: '首页', link: '/' },
-      { text: '资料', link: '/guide/' },
+      { text: '资料', link: '/书/' },
+      { text: '树洞', link: '/树洞/' },
       { text: 'APP', link: 'https://app.releasing.icu' }
     ],
+    sidebar: {
+      '/树洞/': []
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/shitou333111/releasing_website' }
     ],
     footer: {
       message: '情绪或许就像烟花，释放了会更美好~',
-    //   copyright: 'Copyright © 2026'
+//      copyright: 'Copyright © 2026'
     },
     search: {
       provider: 'local'
@@ -113,7 +122,7 @@ export default defineConfig(withSidebar({
   useFolderTitleFromIndexFile: false,
   includeRootIndexFile: false,
   includeFolderIndexFile: false,
-  excludeByGlobPattern: ['.vitepress/**', 'public/**', 'pdf-content/**'],
+  excludeByGlobPattern: ['.vitepress/**', 'public/**', 'content-for-search/**', 'tree-hole/**', '树洞/**', '**/settings.md', '**/帖子.md'],
   collapsed: false,
   debugPrint: false
 }));

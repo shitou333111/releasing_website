@@ -13,5 +13,21 @@ hero:
       text: 情绪释放APP
       link: https://app.releasing.icu
 
+features:
+  - icon: 📚
+    title: 资料
+    details: 汇聚高质量的情绪释放相关资料，包括书籍、文章、教程，助力你的成长之旅
+    link: /guide/
+  - icon: 🌳
+    title: 树洞
+    details: 一个安全的匿名社区，分享你的故事，倾听他人，在共鸣中获得疗愈
+    link: /树洞/
+  - icon: 📱
+    title: 情绪释放APP
+    details: 我们的移动应用，随时随地进行情绪释放练习，轻松获得平静与喜悦
+    link: https://app.releasing.icu
+  - icon: 🚀
+    title: 更多
+    details: 更多精彩内容正在开发中，敬请期待我们持续更新的功能与资源！
 ---
 

@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-04-21T05:52:39.125Z",
+  "generatedAt": "2026-05-04T20:48:50.895+08:00",
   "entries": {
     "/书/决定自由": {
       "routePath": "/书/决定自由",
       "source": "书/决定自由.md",
-      "audio": "/tts/书/决定自由/final.mp3",
+      "audio": "/tts/书/决定自由/final.wav",
       "cues": "/tts/书/决定自由/cues.json",
       "segments": "/tts/书/决定自由/segments.json",
-      "count": 886,
-      "totalDuration": 19319.84,
-      "generatedAt": "2026-04-16T12:09:18.790Z",
-      "fingerprint": "063d39b51bd7ed65d273babcf9b6dcd4b4affa8d"
+      "count": 20,
+      "totalDuration": 384.32,
+      "generatedAt": "2026-05-04T20:48:50.894+08:00",
+      "fingerprint": "21e87ad00fe3d7df11430795e14e229c645bff9f"
     },
     "/书/我和莱斯特": {
       "routePath": "/书/我和莱斯特",

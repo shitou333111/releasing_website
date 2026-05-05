@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, ref, watch, nextTick, computed } from 'vue';
 import { useRoute } from 'vitepress';
 import { useUserStore } from '../stores/userStore';
 import { useAnnotationStore } from '../stores/annotationStore';
-import { useAnnotationConfig } from '../composables/useAnnotationConfig';
+import { useAnnotationConfig } from '../utils/useAnnotationConfig';
 import { DEFAULT_TAG_COLORS } from '../utils/types';
 import type { Annotation } from '../utils/types';
 import { copyTextToClipboard } from '../utils/clipboard';

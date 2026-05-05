@@ -1,15 +1,37 @@
 <script setup lang="ts">
 import DefaultTheme from 'vitepress/theme';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
 import { useData, useRoute } from 'vitepress';
 import { useUserStore } from './stores/userStore';
 import { useAnnotationStore } from './stores/annotationStore';
 import AnnotationSidebar from './components/AnnotationSidebar.vue';
+import AuthModal from './treehole/AuthModal.vue';
 import TextAnnotator from './components/TextAnnotator.vue';
 import PDFOutlineAside from './components/PDFOutlineAside.vue';
 import ArticleReadAloud from './components/ArticleReadAloud.vue';
-import { useAnnotationConfig } from './composables/useAnnotationConfig';
+import { useAnnotationConfig } from './utils/useAnnotationConfig';
 import './custom.css';
+
+const isTreeHolePage = computed(() => {
+  const rawPath = route.path || '';
+  let decodedPath = rawPath;
+
+  try {
+    decodedPath = decodeURIComponent(rawPath);
+  } catch (e) {
+    decodedPath = rawPath;
+  }
+
+  return decodedPath.startsWith('/树洞/')
+    || rawPath.startsWith('/树洞/')
+    || decodedPath.startsWith('/tree-hole/')
+    || rawPath.startsWith('/tree-hole/');
+});
+
+const isHomePage = computed(() => {
+  const rawPath = route.path || '';
+  return rawPath === '/' || rawPath === '/index' || rawPath === '';
+});
 
 const { Layout } = DefaultTheme;
 const route = useRoute();
@@ -142,10 +164,7 @@ function normalizePDFOutlineItems(input: unknown): PDFOutlineItem[] {
 }
 
 const customPDFOutlineItems = computed(() => normalizePDFOutlineItems(frontmatter.value?.pdfOutline));
-const customPDFOutlineViewerId = computed(() => {
-  const raw = frontmatter.value?.pdfViewerId;
-  return typeof raw === 'string' ? raw.trim() : '';
-});
+// removed pdfViewerId handling — single-PDF-per-page assumption
 const isCustomPDFOutlineEnabled = computed(() => {
   return frontmatter.value?.outline === false && customPDFOutlineItems.value.length > 0;
 });
@@ -163,7 +182,7 @@ function parseFrontmatterNoteEnabled(input: unknown): boolean {
 }
 
 const isPageNotesEnabledByFrontmatter = computed(() => {
-  return parseFrontmatterNoteEnabled(frontmatter.value?.notesEnabled);
+  return parseFrontmatterNoteEnabled(frontmatter.value?.notesEnabledInit);
 });
 
 const canShowNotesControls = computed(() => isEnabledForCurrentPage.value);
@@ -283,6 +302,8 @@ function syncMobileChapterToggleState() {
     return;
   }
 
+  if (isTreeHolePage.value) return;
+
   const textNode = chapterToggleElement.querySelector('.menu-text') as HTMLElement | null;
   if (textNode) {
     if (textNode.textContent !== '章节') {
@@ -306,26 +327,43 @@ function syncMobileChapterToggleState() {
 }
 
 function handleMobileChapterToggleClick(event: MouseEvent) {
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
+  // If a custom PDF outline is enabled, we handle the mobile chapter toggle
+  // ourselves (prevent native behavior and open the custom panel). Otherwise
+  // allow VitePress's native chapter toggle to run so regular markdown pages
+  // still open their built-in outline on mobile.
 
-  activeAsideTab.value = 'outline';
+  if (isCustomPDFOutlineEnabled.value) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
 
-  if (!isMobileViewport.value || !isCustomPDFOutlineEnabled.value) {
-    return;
+    activeAsideTab.value = 'outline';
+
+    if (!isMobileViewport.value) {
+      return;
+    }
+
+    isMobileChapterPanelOpen.value = !isMobileChapterPanelOpen.value;
+    syncMobileChapterToggleState();
+    return false;
   }
 
-  isMobileChapterPanelOpen.value = !isMobileChapterPanelOpen.value;
-  syncMobileChapterToggleState();
-  
-  return false;
+  // Not a custom PDF outline: don't prevent native behavior — but keep the
+  // aside state consistent so UI reflects that 'outline' is the active tab.
+  activeAsideTab.value = 'outline';
 }
 
 function syncMobileViewportState() {
   isMobileViewport.value = window.innerWidth < 960;
   mobileLocalNavContainerTarget.value = document.querySelector('.VPLocalNav .container') as HTMLElement | null;
   mobileLocalNavPanelTarget.value = document.querySelector('.VPLocalNav') as HTMLElement | null;
+
+  if (isTreeHolePage.value) {
+    mobileLocalNavContainerTarget.value = null;
+    mobileLocalNavPanelTarget.value = null;
+    isMobileChapterPanelOpen.value = false;
+    return;
+  }
 
   if (!isMobileViewport.value || !isCustomPDFOutlineEnabled.value) {
     isMobileChapterPanelOpen.value = false;
@@ -423,7 +461,7 @@ function queueViewportSync() {
 
 function handlePDFSearchResultClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
-  const link = target.closest('a[href^="/pdf-content/"]') as HTMLAnchorElement | null;
+  const link = target.closest('a[href^="/content-for-search/pdf-content/"]') as HTMLAnchorElement | null;
   
   if (!link) return;
   
@@ -441,11 +479,185 @@ function handlePDFSearchResultClick(event: MouseEvent) {
     }
   }
   
-  const targetPath = href.split('#')[0].replace('/pdf-content/', '/').replace(/\.html$/, '');
+  const targetPath = href.split('#')[0].replace('/content-for-search/pdf-content/', '/').replace(/\.html$/, '');
   
   sessionStorage.setItem('pdf_page_number', pageNumber.toString());
   
   window.location.replace(targetPath);
+}
+
+function handleHTMLSearchResultClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  const link = target.closest('a[href^="/content-for-search/html-content/"]') as HTMLAnchorElement | null;
+  if (!link) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const href = link.getAttribute('href') || '';
+  const hash = link.hash || '';
+
+  let pageNumber = 1;
+  if (hash && hash.startsWith('#page-')) {
+    const match = hash.match(/#page-(\d+)/);
+    if (match) {
+      pageNumber = parseInt(match[1], 10);
+    }
+  }
+
+  const targetPath = href.split('#')[0].replace('/content-for-search/html-content/', '/').replace(/\.html$/, '');
+
+  sessionStorage.setItem('external_html_page_number', pageNumber.toString());
+
+  window.location.replace(targetPath);
+}
+
+function handleTreeHoleSearchResultClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  const link = target.closest('a[href^="/content-for-search/treehole-content/"]') as HTMLAnchorElement | null;
+  if (!link) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const href = link.getAttribute('href') || '';
+  const rawPath = href.split('#')[0];
+  const prefix = '/content-for-search/treehole-content/';
+  const rest = rawPath.startsWith(prefix) ? rawPath.slice(prefix.length) : '';
+  const threadId = rest.split('/')[0];
+  if (!threadId) return;
+
+  sessionStorage.setItem('treehole_search_thread_id', threadId);
+  window.location.replace('/树洞/');
+}
+
+function hideTreeHolePageElements() {
+  if (!isTreeHolePage.value) return;
+
+  // 隐藏所有可能的上一页/下一页相关元素
+  const selectors = [
+    '.VPFooter',
+    '.VPDocFooter',
+    '.VPDocFooter-content',
+    '.VPDocFooter-prev-next',
+    '.VPDocFooter-prev',
+    '.VPDocFooter-next',
+    '.vp-doc-footer',
+    '.vp-doc-footer-prev-next',
+    '.prev-next',
+    '[data-vp-doc-footer]',
+    'doc-footer',
+    '.VPLink.pager-link',
+    '.pager-link',
+    'a.pager-link',
+    '.pager-link.prev',
+    '.pager-link.next',
+    '[class*="pager"]',
+    '[class*="Pager"]'
+  ];
+
+  selectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      try {
+        // record hide attempt
+        (window as any).__treehole_logs = (window as any).__treehole_logs || [];
+        (window as any).__treehole_logs.push({
+          ts: Date.now(),
+          action: 'hideTreeHoleElement',
+          selector,
+          outer: (el as HTMLElement).outerHTML.slice(0,1000),
+          route: route.path
+        });
+      } catch (e) {
+        // ignore
+      }
+      (el as HTMLElement).style.display = 'none';
+      (el as HTMLElement).style.visibility = 'hidden';
+      (el as HTMLElement).style.opacity = '0';
+      (el as HTMLElement).style.pointerEvents = 'none';
+      (el as HTMLElement).style.height = '0';
+      (el as HTMLElement).style.margin = '0';
+      (el as HTMLElement).style.padding = '0';
+    });
+  });
+}
+
+function removeSidebarNodes() {
+  // Remove or hide core sidebar/aside nodes that may be rendered
+  // by the theme outside of our component tree.
+  const sidebarSelectors = [
+    '.VPSidebar',
+    '.VPDocAside',
+    '.VPDoc .aside',
+    '.VPDocAside .content',
+    '.VPSidebar .curtain'
+  ];
+
+  sidebarSelectors.forEach(sel => {
+    const el = document.querySelector(sel) as HTMLElement | null;
+    if (!el) return;
+
+    try {
+      try {
+        (window as any).__treehole_logs = (window as any).__treehole_logs || [];
+        (window as any).__treehole_logs.push({ ts: Date.now(), action: 'removeSidebarNode', selector: sel, outer: el.outerHTML.slice(0,1000), route: route.path });
+      } catch (e) { }
+      // Prefer non-destructive hiding: add class instead of removing
+      el.classList.add('vp-treehole-hidden');
+      el.setAttribute('data-removed-by', 'treehole-hide-sidebar');
+    } catch (e) {
+      // fallback to hiding if remove not allowed
+      try {
+        (window as any).__treehole_logs = (window as any).__treehole_logs || [];
+        (window as any).__treehole_logs.push({ ts: Date.now(), action: 'hideSidebarNodeFallback', selector: sel, outer: el.outerHTML.slice(0,1000), route: route.path });
+      } catch (e) {}
+      el.style.display = 'none';
+      el.style.visibility = 'hidden';
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+    }
+  });
+}
+
+function removeLocalNavAndChapterNodes() {
+  // Hide known local-nav and mobile-localnav containers via a CSS class.
+  // This avoids destructive DOM removals and prevents accidental removal
+  // of shared ancestors that the theme may rely on.
+  const selectors = [
+    '.VPLocalNav',
+    '.VPLocalNav .container',
+    '.VPLocalNav .menu',
+    '.VPLocalNavOutlineDropdown',
+    '.mobile-localnav-tabs'
+  ];
+
+  selectors.forEach(sel => {
+    const els = document.querySelectorAll(sel);
+    els.forEach(el => {
+      // Never touch elements that live inside the main site nav
+      if (el.closest('.VPNavBar, .VPNav, .VPNavBarMenu')) return;
+      try {
+        el.classList.add('vp-treehole-hidden');
+        el.setAttribute('data-removed-by', 'treehole-hide-chapter');
+        try { (window as any).__treehole_logs = (window as any).__treehole_logs || []; (window as any).__treehole_logs.push({ ts: Date.now(), action: 'class-hide', selector: sel, outer: el.outerHTML.slice(0,1000), route: route.path }); } catch (e) {}
+      } catch (e) {
+        try { (el as HTMLElement).style.display = 'none'; } catch (__) { /* ignore */ }
+      }
+    });
+  });
+}
+
+let treeHoleObserver: MutationObserver | null = null;
+
+function updateHomePageClass() {
+  if (isHomePage.value) {
+    document.documentElement.classList.add('home');
+    document.body.classList.add('home');
+  } else {
+    document.documentElement.classList.remove('home');
+    document.body.classList.remove('home');
+  }
 }
 
 onMounted(() => {
@@ -470,8 +682,79 @@ onMounted(() => {
   window.addEventListener('resize', queueViewportSync);
   document.addEventListener('click', handleMobileOutsideClick);
   document.addEventListener('click', handlePDFSearchResultClick, true);
+  document.addEventListener('click', handleHTMLSearchResultClick, true);
+  document.addEventListener('click', handleTreeHoleSearchResultClick, true);
   document.addEventListener('click', handleChapterLinkClick, true);
   document.addEventListener(PDF_OUTLINE_JUMP_EVENT, handlePDFOutlineJump as EventListener, true);
+
+  nextTick(() => {
+    updateHomePageClass();
+    hideTreeHolePageElements();
+    
+    // 高亮侧边栏选中项
+    highlightActiveSidebarItem();
+
+    // 为树洞页面添加专门的 MutationObserver，确保动态加载的元素也被隐藏
+    // Push a diagnostic snapshot for TreeHole pages to help debugging.
+    try {
+      if (isTreeHolePage.value) {
+        (window as any).__treehole_logs = (window as any).__treehole_logs || [];
+        const nav = document.querySelector('.VPNavBar, .VPNav');
+        const localNav = document.querySelector('.VPLocalNav, .mobile-localnav-tabs, .VPLocalNavOutlineDropdown');
+        (window as any).__treehole_logs.push({
+          ts: Date.now(),
+          action: 'diagnostic-snapshot',
+          route: route.path,
+          navOuter: nav ? (nav as HTMLElement).outerHTML.slice(0,2000) : null,
+          localNavOuter: localNav ? (localNav as HTMLElement).outerHTML.slice(0,2000) : null,
+          docClass: document.documentElement.className
+        });
+      }
+    } catch (e) {
+      // ignore
+    }
+    if (isTreeHolePage.value) {
+      treeHoleObserver = new MutationObserver(() => {
+          hideTreeHolePageElements();
+          removeSidebarNodes();
+          removeLocalNavAndChapterNodes();
+      });
+
+      treeHoleObserver.observe(document.body, {
+        subtree: true,
+        childList: true
+      });
+    }
+    // Also proactively remove theme-rendered sidebar/localnav nodes if present.
+    if (isTreeHolePage.value) {
+      removeSidebarNodes();
+      removeLocalNavAndChapterNodes();
+    }
+    // Ensure global document root reflects TreeHole page state so CSS
+    // selectors targeting top-level nav/aside can reliably hide elements.
+    try {
+      if (isTreeHolePage.value) {
+        document.documentElement.classList.add('is-treehole-page');
+      } else {
+        document.documentElement.classList.remove('is-treehole-page');
+      }
+    } catch (e) {
+      // ignore in SSR or restricted environments
+    }
+    
+    // 监听侧边栏的变化，确保动态加载时也能高亮
+    const sidebarObserver = new MutationObserver(() => {
+      highlightActiveSidebarItem();
+    });
+    
+    const sidebarNav = document.getElementById('VPSidebarNav');
+    if (sidebarNav) {
+      sidebarObserver.observe(sidebarNav, {
+        subtree: true,
+        childList: true
+      });
+    }
+  });
 });
 
 function handleChapterLinkClick(event: MouseEvent) {
@@ -508,6 +791,59 @@ function handlePDFOutlineJump() {
   unlockBodyScroll();
 }
 
+function highlightActiveSidebarItem() {
+  // 清除之前的选中样式
+  const previousItems = document.querySelectorAll('.VPSidebarItem.custom-active');
+  previousItems.forEach(item => {
+    item.classList.remove('custom-active');
+  });
+  
+  const previousLinks = document.querySelectorAll('#VPSidebarNav a.custom-active');
+  previousLinks.forEach(link => {
+    link.classList.remove('custom-active');
+  });
+  
+  const previousTexts = document.querySelectorAll('#VPSidebarNav .text.custom-active');
+  previousTexts.forEach(text => {
+    text.classList.remove('custom-active');
+  });
+
+  // 获取当前路径
+  let currentPath = route.path || '';
+  
+  // 找到匹配的侧边栏链接
+  const allSidebarLinks = document.querySelectorAll('#VPSidebarNav a');
+  let matchedLink: HTMLAnchorElement | null = null;
+  
+  allSidebarLinks.forEach(link => {
+    const linkEl = link as HTMLAnchorElement;
+    const linkPath = new URL(linkEl.href).pathname;
+    
+    if (linkPath === currentPath || 
+        linkPath === currentPath + 'index' || 
+        currentPath === linkPath + '/') {
+      matchedLink = linkEl;
+    }
+  });
+  
+  if (matchedLink) {
+    // 找到最近的 VPSidebarItem
+    const sidebarItem = matchedLink.closest('.VPSidebarItem');
+    if (sidebarItem) {
+      sidebarItem.classList.add('custom-active');
+    }
+    
+    // 给链接添加 active 类
+    matchedLink.classList.add('custom-active');
+    
+    // 给文字添加 active 类
+    const textEl = matchedLink.querySelector('.text');
+    if (textEl) {
+      textEl.classList.add('custom-active');
+    }
+  }
+}
+
 watch(() => route.path, (newPath) => {
   pageNotesEnabledOverride.value = null;
   annotationStore.setPageNotesEnabled(isPageNotesEnabled.value);
@@ -515,6 +851,43 @@ watch(() => route.path, (newPath) => {
   activeAsideTab.value = 'outline';
   isMobileChapterPanelOpen.value = false;
   queueViewportSync();
+
+  // 路由变化时，先清理旧的 observer
+  if (treeHoleObserver) {
+    treeHoleObserver.disconnect();
+    treeHoleObserver = null;
+  }
+
+  nextTick(() => {
+    updateHomePageClass();
+    hideTreeHolePageElements();
+    
+    // 高亮侧边栏选中项
+    highlightActiveSidebarItem();
+
+    // 新页面如果是树洞页面，重新设置 observer
+    if (isTreeHolePage.value) {
+      treeHoleObserver = new MutationObserver(() => {
+        hideTreeHolePageElements();
+      });
+
+      treeHoleObserver.observe(document.body, {
+        subtree: true,
+        childList: true
+      });
+    }
+    // Keep a global document class in sync too so CSS outside the
+    // Layout tree can detect TreeHole pages and hide sidebars/localnavs.
+    try {
+      if (isTreeHolePage.value) {
+        document.documentElement.classList.add('is-treehole-page');
+      } else {
+        document.documentElement.classList.remove('is-treehole-page');
+      }
+    } catch (e) {
+      // ignore
+    }
+  });
 });
 
 watch(() => annotationStore.selectedAnnotationId, (selectedId) => {
@@ -609,6 +982,8 @@ onUnmounted(() => {
   unlockBodyScroll();
   localNavObserver?.disconnect();
   localNavObserver = null;
+  treeHoleObserver?.disconnect();
+  treeHoleObserver = null;
 
   if (mobileViewportSyncRaf) {
     cancelAnimationFrame(mobileViewportSyncRaf);
@@ -618,6 +993,8 @@ onUnmounted(() => {
   window.removeEventListener('resize', queueViewportSync);
   document.removeEventListener('click', handleMobileOutsideClick);
   document.removeEventListener('click', handlePDFSearchResultClick, true);
+  document.removeEventListener('click', handleHTMLSearchResultClick, true);
+  document.removeEventListener('click', handleTreeHoleSearchResultClick, true);
   document.removeEventListener('click', handleChapterLinkClick, true);
   document.removeEventListener(PDF_OUTLINE_JUMP_EVENT, handlePDFOutlineJump as EventListener, true);
 
@@ -625,11 +1002,16 @@ onUnmounted(() => {
     document.documentElement.classList.remove('ios-touch-device');
     iosCalloutClassApplied = false;
   }
+  try {
+    document.documentElement.classList.remove('is-treehole-page');
+  } catch (e) {
+    // ignore
+  }
 });
 </script>
 
 <template>
-  <Layout :class="['annotation-layout', `aside-tab-${activeAsideTab}`]" :style="contentMaxWidth ? { '--content-max-width': contentMaxWidth } : undefined">
+  <Layout :class="['annotation-layout', `aside-tab-${activeAsideTab}`, isTreeHolePage ? 'is-treehole-page' : '', isHomePage ? 'home' : '']" :style="contentMaxWidth ? { '--content-max-width': contentMaxWidth } : undefined">
     <template #aside-outline-before>
       <div
         v-if="canShowNotesControls"
@@ -645,6 +1027,7 @@ onUnmounted(() => {
           aria-label="章节与笔记切换"
         >
           <div
+            v-if="!isTreeHolePage"
             class="aside-tab"
             role="tab"
             tabindex="0"
@@ -687,10 +1070,9 @@ onUnmounted(() => {
       </div>
     </template>
     <template #aside-outline-after>
-      <div v-if="isEnabledForCurrentPage && isCustomPDFOutlineEnabled" class="pdf-outline-panel">
+      <div v-if="isCustomPDFOutlineEnabled" class="pdf-outline-panel">
         <PDFOutlineAside
           :items="customPDFOutlineItems"
-          :viewer-id="customPDFOutlineViewerId"
         />
       </div>
       <div v-if="isPageNotesEnabled" class="annotation-panel">
@@ -700,9 +1082,10 @@ onUnmounted(() => {
     <template #doc-after>
       <ArticleReadAloud />
       <TextAnnotator v-if="isPageNotesEnabled" />
+      <AuthModal />
 
       <Teleport
-        v-if="isEnabledForCurrentPage && isMobileViewport && mobileLocalNavContainerTarget"
+        v-if="!isTreeHolePage && isEnabledForCurrentPage && isMobileViewport && mobileLocalNavContainerTarget"
         :to="mobileLocalNavContainerTarget"
       >
         <div class="mobile-localnav-tabs">
@@ -741,7 +1124,7 @@ onUnmounted(() => {
       </Teleport>
 
       <Teleport
-        v-if="isPageNotesEnabled && isMobileViewport && mobileLocalNavPanelTarget && activeAsideTab === 'annotations'"
+        v-if="!isTreeHolePage && isPageNotesEnabled && isMobileViewport && mobileLocalNavPanelTarget && activeAsideTab === 'annotations'"
         :to="mobileLocalNavPanelTarget"
       >
         <div
@@ -752,13 +1135,12 @@ onUnmounted(() => {
       </Teleport>
 
       <Teleport
-        v-if="isEnabledForCurrentPage && isMobileViewport && mobileLocalNavPanelTarget && activeAsideTab === 'outline' && isCustomPDFOutlineEnabled && isMobileChapterPanelOpen"
+        v-if="!isTreeHolePage && isMobileViewport && mobileLocalNavPanelTarget && activeAsideTab === 'outline' && isCustomPDFOutlineEnabled && isMobileChapterPanelOpen"
         :to="mobileLocalNavPanelTarget"
       >
         <div class="mobile-localnav-pdf-outline">
           <PDFOutlineAside
             :items="customPDFOutlineItems"
-            :viewer-id="customPDFOutlineViewerId"
           />
         </div>
       </Teleport>

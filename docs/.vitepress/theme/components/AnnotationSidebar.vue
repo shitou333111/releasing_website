@@ -229,61 +229,6 @@ watch(() => annotationStore.selectedAnnotationId, async (selectedId) => {
       </div>
     </div>
 
-    <Teleport to="body">
-      <div
-        v-if="showLoginModal"
-        class="create-annotation-modal auth-modal"
-        @mousedown.self="startAuthBackdropClose"
-        @mouseup.self="maybeCloseAuthModal"
-      >
-        <div class="create-annotation-content auth-dialog" @mousedown.stop="cancelAuthBackdropClose" @mouseup.stop="cancelAuthBackdropClose">
-          <div class="auth-header">
-            <h3 class="auth-title">输入用户名和密码</h3>
-            <p class="auth-subtitle">用户名不存在会自动注册并登录，已存在则直接登录。</p>
-          </div>
-
-          <div class="auth-form">
-            <label class="auth-field" for="auth-username-input">
-              <span class="auth-label">用户名</span>
-              <input
-                id="auth-username-input"
-                v-model="username"
-                type="text"
-                maxlength="10"
-                placeholder="支持汉字，最多 10 个字符"
-                class="auth-input"
-                @keyup.enter="handleLogin"
-              >
-            </label>
-
-            <label class="auth-field" for="auth-password-input">
-              <span class="auth-label">密码</span>
-              <input
-                id="auth-password-input"
-                v-model="password"
-                type="password"
-                placeholder="请输入密码"
-                class="auth-input"
-                @keyup.enter="handleLogin"
-              >
-            </label>
-          </div>
-
-          <div v-if="userStore.authError" class="auth-feedback auth-error">
-            {{ userStore.authError }}
-          </div>
-          <div v-if="userStore.authNotice" class="auth-feedback auth-notice">
-            {{ userStore.authNotice }}
-          </div>
-
-          <div class="modal-actions auth-actions">
-            <button class="modal-btn cancel auth-btn auth-btn-ghost" @click="closeAuthModal">取消</button>
-            <button class="modal-btn submit auth-btn auth-btn-primary" @click="handleLogin" :disabled="userStore.authLoading || !isCloudAuth">
-              {{ userStore.authLoading ? '处理中...' : '注册/登录' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <!-- Auth modal is rendered globally in Layout to unify styles with TreeHole -->
   </div>
 </template>

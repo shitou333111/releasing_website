@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useData, useRoute } from 'vitepress';
-import { cleanTextForTTS, createStableFingerprint } from '../../shared/readAloudText.js';
+import { cleanTextForTTS, createStableFingerprint } from '../../script/readAloudText.js';
 
 type ReadAloudCue = {
   id: string;

@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const pdfDir = path.resolve(__dirname, '../public/PDFs');
-const outputDir = path.resolve(__dirname, '../pdf-content');
+const outputDir = path.resolve(__dirname, '../content-for-search/pdf-content');
 const cacheFile = path.resolve(__dirname, 'pdf-cache.json');
 
 function computeFileHash(filePath) {
@@ -201,6 +201,7 @@ async function generatePDFIndex() {
 title: "${name}"
 editLink: false
 outline: false
+permalink: /content-for-search/pdf-content/${relativePath ? relativePath + '/' : ''}${baseName}
 ---
 
 # ${name}
@@ -229,4 +230,7 @@ ${markdownContent}
   console.log(`   - 输出目录: ${outputDir}`);
 }
 
-generatePDFIndex().catch(console.error);
+generatePDFIndex().catch((error) => {
+  console.error('❌ PDF 索引生成失败:', error?.message || error);
+  process.exitCode = 0; // 即使失败也返回成功，不影响开发服务器启动
+});

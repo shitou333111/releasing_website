@@ -2,7 +2,7 @@
 import { ref, computed, onUnmounted, watch, nextTick } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { useAnnotationStore } from '../stores/annotationStore';
-import { useAnnotationConfig } from '../composables/useAnnotationConfig';
+import { useAnnotationConfig } from '../utils/useAnnotationConfig';
 import type { Annotation } from '../utils/types';
 import { copyTextToClipboard } from '../utils/clipboard';
 

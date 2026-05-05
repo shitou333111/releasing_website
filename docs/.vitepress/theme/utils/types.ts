@@ -55,10 +55,7 @@ export interface Annotation {
 
 export interface AnnotationConfig {
   enabled: boolean;
-  paths: {
-    enabled: string[];
-    disabled: string[];
-  };
+  paths: string[];
   features: {
     pdfAnnotation: boolean;
     replies: boolean;

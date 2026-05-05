@@ -3,6 +3,8 @@ name: Deploy VitePress Site
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '0 */4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -17,6 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4

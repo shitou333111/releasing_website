@@ -10,10 +10,8 @@ type PDFOutlineItem = {
 
 const props = withDefaults(defineProps<{
   items: PDFOutlineItem[];
-  viewerId?: string;
   title?: string;
 }>(), {
-  viewerId: '',
   title: ''
 });
 
@@ -42,7 +40,6 @@ function jumpToPage(item: PDFOutlineItem) {
   document.dispatchEvent(new CustomEvent('pdf-outline-jump', {
     detail: {
       page: item.page,
-      viewerId: props.viewerId || undefined,
       source: 'frontmatter-outline'
     }
   }));

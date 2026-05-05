@@ -22,5 +22,9 @@ docs/.vitepress/tts-cache-audio/
 !/docs/public/tts/**/final.mp3
 !/docs/public/tts/**/manifest.json
 
-# Ignore local generated PDF content directory
-/docs/pdf-content/
+# Ignore generated search index content directory
+/docs/content-for-search/
+docs/.vitepress/treehole-cache.json
+
+# Deprecated scripts archive
+noUse/

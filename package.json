@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "gen-pdf-index": "node docs/.vitepress/gen-pdf-index.js",
-    "gen-tts-assets": "node docs/.vitepress/gen-tts-assets.js",
-    "docs:dev": "npm run gen-pdf-index && vitepress dev docs --host 0.0.0.0 --port 5174",
-    "docs:build": "npm run gen-pdf-index && vitepress build docs",
+    "gen-external-html-index": "node docs/.vitepress/gen-external-html-index.js",
+    "gen-treehole-index": "node docs/.vitepress/gen-treehole-index.js",
+    "gen-tts-assets": "node docs/.vitepress/script/gen-tts-assets.js",
+    "docs:dev": "node docs/.vitepress/gen-pdf-index.js && node docs/.vitepress/gen-external-html-index.js && node docs/.vitepress/gen-treehole-index.js && vitepress dev docs --host 0.0.0.0 --port 5174",
+    "docs:build": "node docs/.vitepress/gen-pdf-index.js && node docs/.vitepress/gen-external-html-index.js && node docs/.vitepress/gen-treehole-index.js && vitepress build docs",
     "docs:preview": "vitepress preview docs --host 0.0.0.0 --port 5174"
   },
   "devDependencies": {
@@ -16,6 +18,7 @@
     "markdown-it": "^14.1.1",
     "vitepress": "^1.6.3",
     "vitepress-sidebar": "^1.33.1"
+    ,"dotenv": "^16.1.4"
   },
   "dependencies": {
     "@recogito/pdf-annotator": "^1.6.0",
@@ -29,6 +32,7 @@
     "pdf2json": "^4.0.2",
     "pdfjs-dist": "^5.6.205",
     "pinia": "^3.0.4",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "cheerio": "^1.0.0-rc.12"
   }
 }

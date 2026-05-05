@@ -8,6 +8,7 @@
 
 - 使用 VitePress 搭建可发布文档/内容站点。
 - 支持文本标注与 PDF 标注统一展示和存储。
+- 支持 TreeHole 树洞系统（发帖、回复、收藏、收到回复、设置）。
 - 支持公开/私密标注、回复、点赞、用户筛选。
 - 使用 Supabase 承载账号体系与云端数据。
 - 通过 `vitepress-sidebar` 自动生成侧边栏目录，并支持中文目录/文件。
@@ -55,10 +56,22 @@ npm run docs:preview
 
 `package.json` 中定义：
 
-- `docs:dev`: `vitepress dev docs --host 0.0.0.0 --port 5174`
-- `docs:build`: `vitepress build docs`
+- `gen-pdf-index`: 构建 PDF 搜索镜像页
+- `gen-treehole-index`: 构建 TreeHole 搜索镜像页（生成到 `docs/treehole-content/`）
+- `docs:dev`: `npm run gen-pdf-index && npm run gen-treehole-index && vitepress dev docs --host 0.0.0.0 --port 5174`
+- `docs:build`: `npm run gen-pdf-index && npm run gen-treehole-index && vitepress build docs`
 - `docs:preview`: `vitepress preview docs --host 0.0.0.0 --port 5174`
 - `gen-tts-assets`: 为启用 `readAloudEnabled: true` 的文章生成朗读资源（音频 + 段落时间轴）
+
+### 4.2 TreeHole 索引构建环境变量
+
+`gen-treehole-index` 需要 Supabase 访问凭据。按优先级读取：
+
+- `TREEHOLE_INDEX_SUPABASE_URL`
+- `TREEHOLE_INDEX_SUPABASE_SERVICE_ROLE_KEY` 或 `TREEHOLE_INDEX_SUPABASE_ANON_KEY`
+- 回退到 `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
+
+如果未配置，脚本会跳过 TreeHole 索引生成并继续构建。
 
 ### 4.1 文章朗读资源生成（Xiaomi MiMo TTS）
 
@@ -106,6 +119,8 @@ npm run gen-tts-assets
 │  ├─ guide/
 │  │  ├─ index.md
 │  │  └─ pdftest.md
+│  ├─ tree-hole/
+│  ├─ treehole-content/
 │  ├─ 书/
 │  ├─ public/
 │  └─ index.md
@@ -253,15 +268,24 @@ npm run gen-tts-assets
 - Supabase 云端账号与数据同步
 - 模糊匹配重定位（内容变动后尽量恢复标注位置）
 
-## 9. 页面 Frontmatter 速查
+## 9. TreeHole 模块说明
+
+- 路由入口：`/tree-hole/`
+- 侧边栏页面：全部帖子、自己发布的帖子、自己收藏的帖子、收到的回复、设置
+- 认证复用：沿用现有 Supabase 用户名登录（自动注册/登录）
+- 匿名规则：同一帖子线程内，用户被稳定映射为 A/B/C... 别名
+- 图片限制：单张最大 5MB，每条最多 4 张
+- 搜索方式：构建期镜像索引（方案 C），非实时
+
+## 10. 页面 Frontmatter 速查
 
 常见 frontmatter：
 
 ```yaml
 ---
+---
 outline: false
-notesEnabled: true
-pdfViewerId: pdftest-main
+notesEnabledInit: true
 pdfOutline:
 	- '"封面" 1'
 	- '"前言" 3'
@@ -271,10 +295,10 @@ pdfOutline:
 说明：
 
 - `outline: false` 时，右侧章节区域可切换为自定义 PDF 大纲
-- `notesEnabled` 控制页面初始笔记状态
-- `pdfViewerId` 必须与页面里的 `<PDFViewer viewer-id="..." />` 对应
+- `notesEnabledInit` 控制页面初始化时的笔记栏状态
+- `pdfViewerId` / `viewer-id` no longer required — the viewer assumes a single PDF per page
 
-## 10. 侧边栏标题策略（当前）
+## 11. 侧边栏标题策略（当前）
 
 当前策略为：
 
@@ -286,9 +310,9 @@ pdfOutline:
 - `useTitleFromFrontmatter: true`
 - `useTitleFromFileHeading: false`
 
-## 11. 常见问题排查
+## 12. 常见问题排查
 
-### 11.1 侧边栏出现奇怪标题
+### 12.1 侧边栏出现奇怪标题
 
 检查：
 
@@ -299,7 +323,7 @@ pdfOutline:
 
 - 采用当前配置：frontmatter 优先 + 文件名回退
 
-### 11.2 某目录没有被侧边栏索引
+### 12.2 某目录没有被侧边栏索引
 
 检查：
 
@@ -307,7 +331,7 @@ pdfOutline:
 - `excludeByGlobPattern` 是否误排除
 - 目录中是否有可扫描的 `.md` 文件
 
-### 11.3 build 报错但 dev 可运行
+### 12.3 build 报错但 dev 可运行
 
 优先检查：
 

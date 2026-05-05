@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { useAnnotationStore } from '../stores/annotationStore';
-import { useAnnotationConfig } from '../composables/useAnnotationConfig';
+import { useAnnotationConfig } from '../utils/useAnnotationConfig';
 import { DEFAULT_TAG_COLORS } from '../utils/types';
 import { copyTextToClipboard } from '../utils/clipboard';
 
@@ -23,7 +23,6 @@ const PDF_OUTLINE_JUMP_EVENT = 'pdf-outline-jump';
 
 const props = withDefaults(defineProps<{
   src: string;
-  viewerId?: string;
   embedMode?: 'contained' | 'fullpage';
   height?: string;
   background?: string;
@@ -38,7 +37,6 @@ const props = withDefaults(defineProps<{
   lazyRootMargin?: string;
 }>(), {
   embedMode: 'contained',
-  viewerId: '',
   height: '72vh',
   background: '#ffffff',
   trimX: 0,
@@ -1564,20 +1562,6 @@ function navigateToPDFPage(pageNumber: number) {
   });
 }
 
-function getCurrentViewerId(): string {
-  const fromProp = props.viewerId?.trim();
-  if (fromProp) {
-    return fromProp;
-  }
-
-  const source = props.src?.trim();
-  if (!source) {
-    return '';
-  }
-
-  return source.replace(/[?#].*$/, '');
-}
-
 function handleOutlineJump(event: Event) {
   const detail = (event as CustomEvent<PDFOutlineJumpDetail>).detail;
   if (!detail || typeof detail !== 'object') {
@@ -1588,18 +1572,6 @@ function handleOutlineJump(event: Event) {
   if (!Number.isFinite(nextPage) || nextPage <= 0) {
     return;
   }
-
-  const targetViewerId = typeof detail.viewerId === 'string' ? detail.viewerId.trim() : '';
-  const currentViewerId = getCurrentViewerId();
-
-  if (targetViewerId && currentViewerId && targetViewerId !== currentViewerId) {
-    return;
-  }
-
-  if (targetViewerId && !currentViewerId) {
-    return;
-  }
-
   navigateToPDFPage(nextPage);
 }
 

@@ -14,6 +14,66 @@
   --vp-home-hero-image-filter: blur(56px);
 }
 
+/* ==========================================
+   首页白色背景！
+   ========================================== */
+
+/* 首页整体背景白色 */
+html.home,
+body.home {
+  background-color: #ffffff !important;
+}
+
+/* 首页导航栏纯白色背景 */
+body.home .VPNav,
+body.home .VPNavBar,
+body.home .VPNavBar .wrapper,
+body.home .VPNavBar .container,
+body.home .VPNavBar .content,
+body.home .VPNavBar .content-body {
+  background-color: #ffffff !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* 首页Hero区域背景白色 */
+body.home .VPHomeHero {
+  background-color: #ffffff !important;
+}
+
+/* 首页Features区域背景白色 */
+body.home .VPHomeFeatures {
+  background-color: #ffffff !important;
+}
+
+/* 暗黑模式下首页背景深色 */
+.dark html.home,
+.dark body.home {
+  background-color: #0b1120 !important;
+}
+
+/* 暗黑模式下首页导航栏纯深色背景 */
+.dark body.home .VPNav,
+.dark body.home .VPNavBar,
+.dark body.home .VPNavBar .wrapper,
+.dark body.home .VPNavBar .container,
+.dark body.home .VPNavBar .content,
+.dark body.home .VPNavBar .content-body {
+  background-color: #0b1120 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* 暗黑模式下首页Hero区域深色背景 */
+.dark body.home .VPHomeHero {
+  background-color: #0b1120 !important;
+}
+
+/* 暗黑模式下首页Features区域深色背景 */
+.dark body.home .VPHomeFeatures {
+  background-color: #0b1120 !important;
+}
+
 html {
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
@@ -73,6 +133,38 @@ body,
 .annotation-layout .VPSidebar .curtain {
   background: var(--annotation-sidebar-bg) !important;
 }
+
+.annotation-layout.is-treehole-page .VPSidebar,
+.annotation-layout.is-treehole-page .VPSidebar .curtain {
+  display: none !important;
+}
+
+.annotation-layout.is-treehole-page .VPContent.has-sidebar {
+  padding-left: 0 !important;
+}
+
+/* Global hiding when document root is marked as a TreeHole page. This
+   covers elements rendered outside the Layout component tree (nav/sidebar
+   provided by the theme) so the left sidebar and mobile local-nav are fully
+   suppressed on /树洞/ routes. */
+.is-treehole-page .VPLocalNav,
+.is-treehole-page .VPLocalNavOutlineDropdown,
+.is-treehole-page .mobile-localnav-tabs {
+  display: none !important;
+}
+
+/* Fallback class used by runtime to hide elements without removing them. */
+.vp-treehole-hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+
 
 .annotation-layout .mobile-localnav-tabs {
   display: none;
@@ -143,6 +235,24 @@ body,
   bottom: 24px;
   z-index: 9999;
   pointer-events: auto;
+}
+
+/* Respect safe-area on mobile to avoid status-bar / notch overlap for mobile navs */
+/* Apply only when env() is supported; fallback to 0px otherwise */
+.VPNavBar,
+.VPNavBar .wrapper,
+.VPNavBar.has-sidebar .wrapper {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+/* Ensure mobile local nav (Menu / 章节 row) sits below status bar */
+@media (max-width: 767px) {
+  .mobile-localnav-tabs {
+    position: relative !important;
+    top: env(safe-area-inset-top, 0px) !important;
+    padding-top: calc(env(safe-area-inset-top, 0px)) !important;
+    z-index: 40 !important;
+  }
 }
 
 
@@ -387,9 +497,19 @@ body,
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: center;
     gap: 8px;
-    margin: 0 2px;
-    padding: 8px 10px 10px;
+    /* margin: 0 2px; */
+    padding: 10px;
+    /* padding-top: max(env(safe-area-inset-top, 0px)); */
     box-sizing: border-box;
+  }
+
+  .is-treehole-page .VPLocalNavOutlineDropdown,
+  .is-treehole-page .VPLocalNavOutlineDropdown > button {
+    display: none !important;
+  }
+
+  .is-treehole-page .VPLocalNav .container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .annotation-layout .VPLocalNav .menu,
@@ -1935,6 +2055,45 @@ body,
   transform-origin: top left;
 }
 
+/* 树洞页面样式 */
+.is-treehole-page .VPFooter,
+.is-treehole-page .VPDocFooter,
+.is-treehole-page .VPDocFooter-content,
+.is-treehole-page .VPDocFooter-prev-next,
+.is-treehole-page .VPDocFooter-prev,
+.is-treehole-page .VPDocFooter-next,
+.is-treehole-page .VPDoc .VPDocFooter,
+.is-treehole-page .vp-doc-footer,
+.is-treehole-page doc-footer,
+.is-treehole-page .vp-doc-footer-prev-next,
+.is-treehole-page .prev-next,
+.is-treehole-page [data-vp-doc-footer],
+.is-treehole-page doc-footer,
+.is-treehole-page .VPLink.pager-link,
+.is-treehole-page .pager-link,
+.is-treehole-page a.pager-link,
+.is-treehole-page .pager-link.prev,
+.is-treehole-page .pager-link.next,
+.is-treehole-page .VPDocFooter-prev,
+.is-treehole-page .VPDocFooter-next,
+.is-treehole-page [class*="pager"],
+.is-treehole-page [class*="Pager"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.is-treehole-page .VPDocAside {
+  display: none !important;
+}
+
+.is-treehole-page .VPDoc.has-aside .content-container,
+.is-treehole-page .VPDoc:not(.has-aside) .content-container {
+  max-width: 100% !important;
+  padding-right: 0 !important;
+}
+
 .pdf-viewer-container .textLayer {
   mix-blend-mode: multiply;
 }
@@ -2398,5 +2557,17 @@ html.ios-touch-device .pdf-viewer-container .textLayer * {
 
     /* making selection to behave nicer when selecting text between multiple columns (useful for pages with 2 or more text columns) */
     padding-right: 1000px;
+}
+
+/* ==========================================
+   侧边栏选中项样式！
+   ========================================== */
+
+/* 文字颜色 */
+#VPSidebarNav .VPSidebarItem.custom-active > .item .text,
+#VPSidebarNav a.custom-active .text,
+#VPSidebarNav .text.custom-active {
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 700 !important;
 }
 

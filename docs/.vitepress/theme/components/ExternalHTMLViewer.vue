@@ -1092,16 +1092,6 @@ function handleOutlineJump(event: Event) {
     return;
   }
 
-  const targetViewerId = typeof detail.viewerId === 'string' ? detail.viewerId.trim() : '';
-  const currentViewerId = getCurrentViewerId();
-
-  if (targetViewerId && currentViewerId && targetViewerId !== currentViewerId) {
-    return;
-  }
-  if (targetViewerId && !currentViewerId) {
-    return;
-  }
-
   navigateToExternalHTMLPage(nextPage);
 }
 
@@ -1144,7 +1134,21 @@ function handleMouseUp() {
 
 onMounted(() => {
   setupResizeObserver();
-  void fetchAndRenderExternalHtml();
+  void fetchAndRenderExternalHtml().then(() => {
+    try {
+      const stored = sessionStorage.getItem('external_html_page_number');
+      if (stored) {
+        const n = Number(stored || 0);
+        if (Number.isFinite(n) && n > 0) {
+          // Ensure content rendered and then navigate
+          navigateToExternalHTMLPage(n);
+          sessionStorage.removeItem('external_html_page_number');
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  });
   document.addEventListener('annotation-card-select', handleAnnotationCardSelect as EventListener);
   document.addEventListener(PDF_OUTLINE_JUMP_EVENT, handleOutlineJump as EventListener);
   document.addEventListener('mouseup', handleMouseUp);
