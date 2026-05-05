@@ -1,4 +1,7 @@
 node_modules/
+.env
+.env.local
+.env.*.local
 .vitepress/cache/
 .vitepress/dist/
 docs/.vitepress/cache/
@@ -28,3 +31,4 @@ docs/.vitepress/treehole-cache.json
 
 # Deprecated scripts archive
 noUse/
+tips.txt

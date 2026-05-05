@@ -46,6 +46,8 @@ jobs:
         run: npm run docs:build
         env:
           BASE_URL: ${{ github.event_name == 'pull_request' && format('/releasing_website/previews/pr-{0}/', github.event.number) || '/releasing_website/previews/latest/' }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy to preview
         if: github.event_name != 'workflow_dispatch'
@@ -61,6 +63,9 @@ jobs:
       - name: Build for production
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))
         run: npm run docs:build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy to production
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))

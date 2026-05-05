@@ -17,7 +17,7 @@ features:
   - icon: 📚
     title: 资料
     details: 汇聚高质量的情绪释放相关资料，包括书籍、文章、教程，助力你的成长之旅
-    link: /guide/
+    link: /书/
   - icon: 🌳
     title: 树洞
     details: 一个安全的匿名社区，分享你的故事，倾听他人，在共鸣中获得疗愈

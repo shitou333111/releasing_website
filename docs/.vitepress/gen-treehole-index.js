@@ -16,13 +16,8 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const outputDir = path.resolve(__dirname, '../content-for-search/treehole-content');
 const cacheFile = path.resolve(__dirname, 'treehole-cache.json');
 
-const supabaseUrl = (process.env.TREEHOLE_INDEX_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
-const supabaseKey = (
-  process.env.TREEHOLE_INDEX_SUPABASE_SERVICE_ROLE_KEY
-  || process.env.TREEHOLE_INDEX_SUPABASE_ANON_KEY
-  || process.env.VITE_SUPABASE_ANON_KEY
-  || ''
-).trim();
+const supabaseUrl = (process.env.VITE_SUPABASE_URL || '').trim();
+const supabaseKey = (process.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
 function sanitizeFileSegment(input) {
   return input
@@ -191,8 +186,7 @@ async function generateTreeHoleIndex() {
   ensureDir(outputDir);
 
   if (!supabaseUrl || !supabaseKey) {
-    console.log('⚠️ 未配置 TreeHole 索引环境变量，跳过生成。');
-    console.log('   需要至少提供 TREEHOLE_INDEX_SUPABASE_URL + TREEHOLE_INDEX_SUPABASE_ANON_KEY');
+    console.log('⚠️ 未配置 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY 环境变量，跳过 TreeHole 索引生成。');
     return;
   }
 

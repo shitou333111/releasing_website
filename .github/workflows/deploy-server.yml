@@ -30,6 +30,8 @@ jobs:
         run: npm run docs:build
         env:
           BASE_URL: /
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Upload dist to server tmp path
         uses: appleboy/scp-action@v0.1.7
