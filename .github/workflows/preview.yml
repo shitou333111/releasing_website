@@ -1,0 +1,73 @@
+name: Deploy Preview
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compute deploy meta
+        id: meta
+        run: |
+          FIRST_LINE=$(git log -1 --pretty=%s)
+          echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "preview_msg=preview(pr-${{ github.event.number }}): ${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+          else
+            echo "preview_msg=preview(latest): ${GITHUB_SHA::7} ${FIRST_LINE}" >> $GITHUB_OUTPUT
+            echo "prod_msg=release: ${GITHUB_SHA::7} ${FIRST_LINE}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build for preview
+        if: github.event_name != 'workflow_dispatch'
+        run: npm run docs:build
+        env:
+          BASE_URL: ${{ github.event_name == 'pull_request' && format('/releasing_website/previews/pr-{0}/', github.event.number) || '/releasing_website/previews/latest/' }}
+
+      - name: Deploy to preview
+        if: github.event_name != 'workflow_dispatch'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs/.vitepress/dist
+          target-folder: ${{ github.event_name == 'pull_request' && format('previews/pr-{0}', github.event.number) || 'previews/latest' }}
+          clean: false
+          commit-message: ${{ steps.meta.outputs.preview_msg }}
+          force: false
+
+      - name: Build for production
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))
+        run: npm run docs:build
+
+      - name: Deploy to production
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs/.vitepress/dist
+          clean: false
+          commit-message: ${{ steps.meta.outputs.prod_msg }}
+          force: false
