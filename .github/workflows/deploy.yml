@@ -36,6 +36,7 @@ jobs:
       - name: Build site
         run: npm run docs:build
         env:
+          BASE_URL: /releasing_website/
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 

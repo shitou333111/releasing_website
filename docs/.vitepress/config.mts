@@ -36,7 +36,7 @@ export default defineConfig(withSidebar({
       }`
     ]
   ],
-  base: process.env.BASE_URL || '/releasing_website/',
+  base: process.env.BASE_URL || '/',
   cleanUrls: true,
   lastUpdated: true,
   vite: {

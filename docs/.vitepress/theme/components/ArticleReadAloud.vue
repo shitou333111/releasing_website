@@ -47,6 +47,12 @@ const isPlaying = ref(false);
 const currentCueId = ref<string | null>(null);
 const currentSeconds = ref(0);
 const floatStyle = ref<any>({ right: '24px' });
+
+const baseUrl = import.meta.env.BASE_URL;
+
+function withTtsBase(path: string): string {
+  return baseUrl + path.replace(/^\//, '');
+}
 const wavHeader = ref<{
   sampleRate: number;
   byteRate: number;
@@ -138,7 +144,10 @@ const statusLabel = computed(() => {
 });
 
 function normalizeRoutePath(pathValue: string): string {
-  const clean = (pathValue || '/').replace(/\.html$/i, '').replace(/\/+$/, '');
+  let clean = (pathValue || '/').replace(/\.html$/i, '').replace(/\/+$/, '');
+  if (baseUrl !== '/' && clean.startsWith(baseUrl)) {
+    clean = clean.slice(baseUrl.length - 1);
+  }
   return clean || '/';
 }
 
@@ -826,7 +835,7 @@ async function loadReadAloudAssets() {
 
   try {
     console.log('[TTS] loadReadAloudAssets: fetching manifest /tts/manifest.json');
-    const manifest = await fetchJson<ManifestFile>('/tts/manifest.json');
+    const manifest = await fetchJson<ManifestFile>(withTtsBase('/tts/manifest.json'));
     console.log('[TTS] manifest loaded', manifest && typeof manifest === 'object' ? Object.keys(manifest.entries || {}) : manifest);
     const rawRoutePath = typeof route.path === 'string' ? decodeURIComponent(route.path) : String(route.path);
     const normalizedRoute = normalizeRoutePath(rawRoutePath);
@@ -840,7 +849,7 @@ async function loadReadAloudAssets() {
     }
 
     console.log('[TTS] fetching cues file', entry.cues);
-    const cuesFile = await fetchJson<{ cues: ReadAloudCue[] }>(entry.cues);
+    const cuesFile = await fetchJson<{ cues: ReadAloudCue[] }>(withTtsBase(entry.cues));
     const loadedCues = Array.isArray(cuesFile.cues) ? cuesFile.cues : [];
 
     console.log('[TTS] loaded cues count', loadedCues.length);
@@ -849,7 +858,7 @@ async function loadReadAloudAssets() {
       throw new Error('朗读时间轴为空');
     }
 
-    audioSrc.value = entry.audio;
+    audioSrc.value = withTtsBase(entry.audio);
     cues.value = loadedCues;
     console.log('[TTS] set audioSrc', audioSrc.value);
     // If MP3, estimate encoder delay/leading silence to align WAV-based cues
