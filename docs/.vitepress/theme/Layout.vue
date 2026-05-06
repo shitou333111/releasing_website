@@ -1080,7 +1080,9 @@ onUnmounted(() => {
       </div>
     </template>
     <template #doc-after>
-      <ArticleReadAloud />
+      <ClientOnly>
+        <ArticleReadAloud />
+      </ClientOnly>
       <TextAnnotator v-if="isPageNotesEnabled" />
       <AuthModal />
 
