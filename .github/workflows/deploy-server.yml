@@ -61,7 +61,7 @@ jobs:
             set -e
             TARGET_DIR="${{ secrets.SSH_TARGET_DIR }}"
             RELEASES_DIR="${TARGET_DIR}/.releases"
-            RELEASE_DIR="${RELEASES_DIR}/release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            RELEASE_DIR="${RELEASES_DIR}/release-${{ github.run_id }}-${{ github.run_attempt }}"
             mkdir -p "$RELEASE_DIR"
             cp -a /tmp/releasing_website-deploy/. "$RELEASE_DIR/"
             PREVIOUS_RELEASE=$(readlink -f "${TARGET_DIR}/current" 2>/dev/null || echo "")
