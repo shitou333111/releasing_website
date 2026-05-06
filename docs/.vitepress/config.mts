@@ -25,15 +25,13 @@ export default defineConfig(withSidebar({
     [
       'script',
       {},
-      `if (typeof window !== 'undefined') {
-        var _hmt = _hmt || [];
-        (function () {
-          var hm = document.createElement('script');
-          hm.src = 'https://hm.baidu.com/hm.js?24c092b334f382721e09367460ae9134';
-          var s = document.getElementsByTagName('script')[0];
-          s.parentNode.insertBefore(hm, s);
-        })();
-      }`
+      `var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?24c092b334f382721e09367460ae9134';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();`
     ]
   ],
   base: process.env.BASE_URL || '/',

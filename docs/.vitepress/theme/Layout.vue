@@ -217,13 +217,6 @@ const effectiveNoteDotClass = computed(() => {
   return isPageNotesEnabled.value ? cloudStatusClass.value : 'is-off';
 });
 
-const layoutClass = computed(() => {
-  const classes: string[] = ['annotation-layout', `aside-tab-${activeAsideTab.value}`];
-  if (isTreeHolePage.value) classes.push('is-treehole-page');
-  if (isHomePage.value) classes.push('home');
-  return classes;
-});
-
 const contentMaxWidth = computed(() => {
   const value = frontmatter.value?.contentMaxWidth;
   if (typeof value === 'number' && value > 0) {
@@ -1018,7 +1011,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Layout :class="layoutClass" :style="contentMaxWidth ? { '--content-max-width': contentMaxWidth } : undefined">
+  <Layout :class="['annotation-layout', `aside-tab-${activeAsideTab}`, isTreeHolePage ? 'is-treehole-page' : '', isHomePage ? 'home' : '']" :style="contentMaxWidth ? { '--content-max-width': contentMaxWidth } : undefined">
     <template #aside-outline-before>
       <div
         v-if="canShowNotesControls"

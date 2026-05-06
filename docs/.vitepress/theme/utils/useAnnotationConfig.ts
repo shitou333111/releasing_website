@@ -63,8 +63,17 @@ export function useAnnotationConfig() {
       // 解码失败时使用原始路径
     }
     currentPath = normalizePath(currentPath);
-
-    return currentPath.startsWith('/书');
+    
+    // 调试信息
+    console.log('原始路径:', route.path);
+    console.log('解码后路径:', currentPath);
+    console.log('配置路径:', projectAnnotationConfig.paths);
+    
+    // 简单检查：只要路径以 /书 开头就启用
+    const result = currentPath.startsWith('/书');
+    console.log('是否启用:', result);
+    
+    return result;
   });
 
   const config = computed<AnnotationConfig>(() => ({
