@@ -1076,7 +1076,9 @@ onUnmounted(() => {
         />
       </div>
       <div v-if="isPageNotesEnabled" class="annotation-panel">
-        <AnnotationSidebar />
+        <ClientOnly>
+          <AnnotationSidebar />
+        </ClientOnly>
       </div>
     </template>
     <template #doc-after>
@@ -1134,7 +1136,9 @@ onUnmounted(() => {
         <div
           class="mobile-localnav-notes"
         >
-          <AnnotationSidebar :is-mobile-panel="true" @request-close-panel="handleMobileNotesClose" />
+          <ClientOnly>
+            <AnnotationSidebar :is-mobile-panel="true" @request-close-panel="handleMobileNotesClose" />
+          </ClientOnly>
         </div>
       </Teleport>
 
