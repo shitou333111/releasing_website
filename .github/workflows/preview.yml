@@ -50,6 +50,10 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
+      - name: Remove TTS files (too large for GitHub Pages)
+        if: github.event_name != 'workflow_dispatch'
+        run: rm -rf docs/.vitepress/dist/tts
+
       - name: Deploy to preview
         if: github.event_name != 'workflow_dispatch'
         uses: JamesIves/github-pages-deploy-action@v4
@@ -67,6 +71,10 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Remove TTS files (too large for GitHub Pages)
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))
+        run: rm -rf docs/.vitepress/dist/tts
 
       - name: Deploy to production
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))
