@@ -35,6 +35,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
+      - name: Remove TTS files before upload (too large, reuse from server)
+        run: rm -rf docs/.vitepress/dist/tts
+
       - name: Upload dist to server tmp path
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -61,5 +64,10 @@ jobs:
             RELEASE_DIR="${RELEASES_DIR}/release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
             mkdir -p "$RELEASE_DIR"
             cp -a /tmp/releasing_website-deploy/. "$RELEASE_DIR/"
+            PREVIOUS_RELEASE=$(readlink -f "${TARGET_DIR}/current" 2>/dev/null || echo "")
+            if [ -n "$PREVIOUS_RELEASE" ] && [ -d "${PREVIOUS_RELEASE}/tts" ]; then
+              echo "Reusing TTS files from previous release: ${PREVIOUS_RELEASE}/tts"
+              cp -a "${PREVIOUS_RELEASE}/tts" "$RELEASE_DIR/"
+            fi
             ln -sfn "$RELEASE_DIR" "${TARGET_DIR}/current"
             ls -1dt "${RELEASES_DIR}"/release-* 2>/dev/null | tail -n +6 | xargs -r rm -rf

@@ -1083,7 +1083,9 @@ onUnmounted(() => {
       <ClientOnly>
         <ArticleReadAloud />
       </ClientOnly>
-      <TextAnnotator v-if="isPageNotesEnabled" />
+      <ClientOnly>
+        <TextAnnotator v-if="isPageNotesEnabled" />
+      </ClientOnly>
       <AuthModal />
 
       <Teleport

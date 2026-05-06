@@ -1,7 +1,7 @@
 import type { AnnotationConfig } from '../theme/utils/types';
 
 export const annotationConfig: AnnotationConfig = {
-  enabled: false, // 开启路径配置
+  enabled: true, // 开启路径配置
   paths: [
     '/书/**' // 书目录及其所有子目录和文件都启用
   ],
