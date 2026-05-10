@@ -1088,7 +1088,9 @@ onUnmounted(() => {
       <ClientOnly>
         <TextAnnotator v-if="isPageNotesEnabled" />
       </ClientOnly>
-      <AuthModal />
+      <ClientOnly>
+        <AuthModal />
+      </ClientOnly>
 
       <Teleport
         v-if="!isTreeHolePage && isEnabledForCurrentPage && isMobileViewport && mobileLocalNavContainerTarget"
