@@ -43,7 +43,7 @@ function handleClose() {
       <div class="auth-modal-body">
         <div v-if="userStore.authError" class="auth-error">{{ userStore.authError }}</div>
         <div v-if="userStore.authNotice" class="auth-notice">{{ userStore.authNotice }}</div>
-        <div class="auth-form">
+        <form class="auth-form" @submit.prevent="handleSubmit">
           <label class="auth-label">
             用户名
             <input 
@@ -63,13 +63,12 @@ function handleClose() {
           </label>
           <button 
             class="auth-submit" 
-            type="button" 
+            type="submit"
             :disabled="submitting" 
-            @click="handleSubmit"
           >
             {{ submitting ? '处理中...' : '注册/登录' }}
           </button>
-        </div>
+        </form>
       </div>
     </div>
   </div>

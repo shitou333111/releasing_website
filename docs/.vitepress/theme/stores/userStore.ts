@@ -275,6 +275,12 @@ export const useUserStore = defineStore('user', () => {
         });
 
         if (error || !data.user) {
+          console.error('[Auth] Signin failed:', {
+            status: error?.status,
+            message: error?.message,
+            name: error?.name,
+            email: syntheticEmail
+          });
           throw new Error('用户名已存在，但密码不正确');
         }
 
@@ -295,6 +301,13 @@ export const useUserStore = defineStore('user', () => {
       });
 
       if (signUpError) {
+        console.error('[Auth] Signup failed:', {
+          status: signUpError.status,
+          message: signUpError.message,
+          name: signUpError.name,
+          email: syntheticEmail,
+          passwordLength: normalizedPassword.length
+        });
         throw signUpError;
       }
 
@@ -323,6 +336,12 @@ export const useUserStore = defineStore('user', () => {
 
       return true;
     } catch (error: any) {
+      console.error('[Auth] signInOrRegisterWithUsername error:', {
+        message: error?.message,
+        status: error?.status,
+        name: error?.name,
+        code: error?.code
+      });
       authError.value = error?.message || '注册/登录失败';
       return false;
     } finally {
