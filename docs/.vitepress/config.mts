@@ -39,6 +39,9 @@ export default defineConfig(withSidebar({
   lastUpdated: true,
   vite: {
     envDir: '..',
+    define: {
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,
+    },
     server: {
       fs: {
         strict: false

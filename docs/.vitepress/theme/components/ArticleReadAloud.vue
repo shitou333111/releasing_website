@@ -824,6 +824,11 @@ async function loadReadAloudAssets() {
     return;
   }
 
+  if (typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+    loading.value = false;
+    return;
+  }
+
   try {
     console.log('[TTS] loadReadAloudAssets: fetching manifest /tts/manifest.json');
     const manifest = await fetchJson<ManifestFile>('/tts/manifest.json');
