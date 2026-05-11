@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const baseUrl = (process.env.BASE_URL || '/').replace(/\/+$/, '');
+const faviconHref = `${baseUrl}/icon-192x192.png`;
 
 export default defineConfig(withSidebar({
   markdown: {
@@ -20,7 +22,7 @@ export default defineConfig(withSidebar({
   title: 'Releasing',
   description: 'A VitePress website for publishing content, custom features, and branded presentation.',
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/icon-192x192.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: faviconHref }],
     ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' }],
     ['meta', { name: 'theme-color', content: '#f8fafc', media: '(prefers-color-scheme: light)' }],
     ['meta', { name: 'theme-color', content: '#0b1120', media: '(prefers-color-scheme: dark)' }],
