@@ -51,6 +51,7 @@ function handleClose() {
               v-model="username" 
               placeholder="输入用户名（最多10个字符）"
               maxlength="10"
+              autocomplete="username"
             />
           </label>
           <label class="auth-label">
@@ -59,6 +60,7 @@ function handleClose() {
               type="password" 
               v-model="password" 
               placeholder="输入密码"
+              autocomplete="current-password"
             />
           </label>
           <button 

@@ -1076,9 +1076,7 @@ onUnmounted(() => {
         />
       </div>
       <div v-if="isPageNotesEnabled" class="annotation-panel">
-        <ClientOnly>
-          <AnnotationSidebar />
-        </ClientOnly>
+        <AnnotationSidebar />
       </div>
     </template>
     <template #doc-after>

@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitepress';
 import { withSidebar } from 'vitepress-sidebar';
 import implicitFigures from 'markdown-it-implicit-figures';
+import { fileURLToPath } from 'node:url';
+import { resolve, dirname } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(withSidebar({
   markdown: {
@@ -38,7 +42,7 @@ export default defineConfig(withSidebar({
   cleanUrls: true,
   lastUpdated: true,
   vite: {
-    envDir: '..',
+    envDir: resolve(__dirname, '../..'),
     define: {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,
     },
